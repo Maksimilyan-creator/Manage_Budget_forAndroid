@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "495391685538",
+    "project_id": "manage-budget-41977",
+    "storage_bucket": "manage-budget-41977.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:495391685538:android:c0f6b61481b58770af50fb",
+        "android_client_info": {
+          "package_name": "com.example.managebudget"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAM7QukHcBbJyfUWIJlKPkoJ5bWIj801BQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

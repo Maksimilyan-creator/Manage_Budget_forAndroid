@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:paddingBottom="10dp"
+    android:paddingTop="10dp">
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/profile_iv"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:src="@drawable/username_icon"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <TextView
+        android:id="@+id/username_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="1dp"
+        android:fontFamily="@font/ubuntu_light"
+        android:textSize="20sp"
+        app:layout_constraintStart_toEndOf="@+id/profile_iv"
+        app:layout_constraintTop_toTopOf="@+id/profile_iv"
+        tools:text="username" />
+
+    <TextView
+        android:id="@+id/userEmail_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginTop="5dp"
+        android:fontFamily="@font/ubuntu_light"
+        android:textSize="15sp"
+        app:layout_constraintStart_toStartOf="@+id/username_tv"
+        app:layout_constraintTop_toBottomOf="@+id/username_tv"
+        tools:text="user@example.com" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

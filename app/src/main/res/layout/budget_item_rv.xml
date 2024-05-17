@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:paddingBottom="10dp"
+    android:paddingTop="10dp">
+
+    <TextView
+        android:id="@+id/budget_name_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="15dp"
+        android:text="Budget Name"
+        android:textSize="16sp"
+
+        android:fontFamily="@font/ubuntu_light"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/budget_description_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+
+        android:text="Budget Description"
+        app:layout_constraintStart_toEndOf="@+id/budget_name_tv"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/crown_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:src="@drawable/crown"
+
+        app:layout_constraintStart_toStartOf="@+id/budget_name_tv"
+        app:layout_constraintTop_toBottomOf="@+id/budget_name_tv" />
+
+    <TextView
+        android:id="@+id/creator_name_tv"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="16dp"
+        android:text="Creator Name"
+        android:textSize="18sp"
+        android:fontFamily="@font/ubuntu_light"
+        app:layout_constraintStart_toEndOf="@+id/crown_icon"
+        app:layout_constraintTop_toBottomOf="@+id/budget_name_tv" />
+
+    <TextView
+        android:id="@+id/email_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:text="example@example.com"
+        app:layout_constraintStart_toEndOf="@+id/creator_name_tv"
+        app:layout_constraintTop_toBottomOf="@+id/budget_name_tv" />
+
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
