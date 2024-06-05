@@ -44,7 +44,7 @@ public class RegisterActivity extends AppCompatActivity {
                 String username = usernameEt.getText().toString();
                 String password = passwordEt.getText().toString();
 
-                if (email.isEmpty() || username.isEmpty() || password.isEmpty())
+                if (email.trim().isEmpty() || username.trim().isEmpty() || password.trim().isEmpty())
                 {
                     Toast.makeText(getApplicationContext(), "Поля не могут быть пустыми", Toast.LENGTH_SHORT).show();
                 }

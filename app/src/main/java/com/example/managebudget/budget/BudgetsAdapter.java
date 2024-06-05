@@ -72,7 +72,7 @@ public class BudgetsAdapter extends BaseAdapter
 
         Budget budget = (Budget) getItem(position);
         holder.budgetNameTV.setText(budget.getName());
-        holder.descriptionTV.setText(budget.getDesription());
+        holder.descriptionTV.setText(budget.getDescription());
 
         userRef.child(budget.getCreatorId()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override

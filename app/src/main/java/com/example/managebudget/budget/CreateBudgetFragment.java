@@ -1,5 +1,6 @@
 package com.example.managebudget.budget;
 
+import android.app.Dialog;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -46,9 +47,9 @@ public class CreateBudgetFragment extends DialogFragment
             {
                 try {
                     EditText nameEditText = rootView.findViewById(R.id.BudgetNameEt);
-                    EditText desctiptionEditText = rootView.findViewById(R.id.BudgetDisriptionEt);
+                    EditText descriptionEditText  = rootView.findViewById(R.id.BudgetDisriptionEt);
                     String name = nameEditText.getText().toString();
-                    String description = desctiptionEditText.getText().toString();
+                    String description = descriptionEditText.getText().toString();
                     String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
                     if (name.isEmpty() || description.isEmpty())
@@ -57,8 +58,9 @@ public class CreateBudgetFragment extends DialogFragment
                     }
                     else
                     {
-                        Budget budget = new Budget(UUID.randomUUID().toString(), name, description, userId);
-                        DatabaseReference budgetRef = database.getReference("budget").push();
+                        String budgetId = database.getReference("budget").push().getKey();
+                        Budget budget = new Budget(budgetId, name, description, userId);
+                        DatabaseReference budgetRef = database.getReference("budget").child(budgetId);
 
                         budgetRef.setValue(budget).addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
@@ -94,5 +96,13 @@ public class CreateBudgetFragment extends DialogFragment
         });
 
         return rootView;
+    }
+
+    @NonNull
+    @Override
+    public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
+        Dialog dialog = super.onCreateDialog(savedInstanceState);
+        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        return dialog;
     }
 }

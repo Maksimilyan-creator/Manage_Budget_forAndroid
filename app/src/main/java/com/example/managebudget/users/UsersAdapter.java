@@ -16,42 +16,47 @@ import com.bumptech.glide.Glide;
 import com.example.managebudget.R;
 
 import java.util.ArrayList;
+import java.util.List;
 
-public class UsersAdapter extends ArrayAdapter<Users> {
+public class UsersAdapter extends RecyclerView.Adapter<UsersViewHolder>
+{
+    private List<Users> users = new ArrayList<>();
+    private OnUserClickListener onUserClickListener;
 
-    public UsersAdapter(Context context, ArrayList<Users> users)
+    public UsersAdapter(List<Users> users, OnUserClickListener onUserClickListener)
     {
-        super(context, 0, users);
+        this.users = users;
+        this.onUserClickListener = onUserClickListener;
     }
 
     @NonNull
     @Override
-    public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        Users user = getItem(position);
+    public UsersViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.person_item_rv, parent, false);
 
-        if (convertView == null)
-        {
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.person_item_rv, parent, false);
-        }
-
-        ImageView profileImage_iv = convertView.findViewById(R.id.profile_iv);
-        TextView username_tv = convertView.findViewById(R.id.username_tv);
-        TextView userEmail_tv = convertView.findViewById(R.id.userEmail_tv);
-
-        username_tv.setText(user.getUsername());
-        userEmail_tv.setText(user.getUserEmail());
-
-        if (!user.getProfileImage().isEmpty())
-        {
-            Glide.with(getContext()).load(user.getProfileImage()).into(profileImage_iv);
-        }
-
-        return convertView;
+        return new UsersViewHolder(view, onUserClickListener);
     }
-@Override
-    public long getItemId(int position)
+
+    @Override
+    public void onBindViewHolder(@NonNull UsersViewHolder holder, int position)
     {
-        return position;
+        holder.username_tv.setText(users.get(position).getUsername());
+        holder.userEmail_tv.setText(users.get(position).getUserEmail());
+
+        if(!users.get(position).profileImage.isEmpty())
+        {
+            Glide.with(holder.itemView.getContext()).load(users.get(position).profileImage).into(holder.profile_iv);
+        }
+
     }
 
+    @Override
+    public int getItemCount() {
+        return users.size();
+    }
+
+    public interface OnUserClickListener
+    {
+        void onUserClick(int position);
+    }
 }

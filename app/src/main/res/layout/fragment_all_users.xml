@@ -4,7 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     app:layout_constraintDimensionRatio="1:1"
-    android:padding="15dp">
+    android:padding="16dp"
+    android:background="@drawable/edit_text_background">
 
     <ImageButton
         android:id="@+id/closeBt_users"
@@ -19,14 +20,15 @@
         android:id="@+id/textView4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/ubuntu_medium"
+        android:textColor="@android:color/black"
+        android:fontFamily="@font/ubuntu_light"
         android:text="Глобальный поиск"
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/closeBt_users" />
 
-    <ListView
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/users_rv"
         android:layout_width="wrap_content"
         android:layout_height="260dp"

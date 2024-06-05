@@ -4,61 +4,69 @@ import com.google.firebase.database.PropertyName;
 
 import java.util.List;
 
-public class Budget
-{
+public class Budget {
     @PropertyName("id")
     private String id;
     @PropertyName("name")
     private String name;
-    @PropertyName("desription")
-    private String desription;
+    @PropertyName("description")
+    private String description;
     @PropertyName("creatorId")
     private String creatorId;
-    private List<String> participatnIds;
+    private List<String> participantIds;
     private List<Transaction> incomeTransactions;
     private List<Transaction> expenseTransactions;
     private List<Goal> goals;
     private List<Debt> debts;
 
+    // Конструктор
+
     public Budget() {}
 
-    public Budget(String id, String name, String desription, String creatorId) {
+    public Budget(String id, String name, String description, String creatorId) {
         this.id = id;
         this.name = name;
-        this.desription = desription;
+        this.description = description;
         this.creatorId = creatorId;
     }
 
-    public Budget(String id, String name, String desription, String creatorId, List<String> participatnIds, List<Transaction> incomeTransactions, List<Transaction> expenseTransactions, List<Goal> goals, List<Debt> debts) {
-        this.id = id;
-        this.name = name;
-        this.desription = desription;
-        this.creatorId = creatorId;
-        this.participatnIds = participatnIds;
-        this.incomeTransactions = incomeTransactions;
-        this.expenseTransactions = expenseTransactions;
-        this.goals = goals;
-        this.debts = debts;
-    }
 
+
+    // Геттеры и сеттеры
     public String getId() {
         return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getName() {
         return name;
     }
 
-    public String getDesription() {
-        return desription;
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public String getCreatorId() {
         return creatorId;
     }
 
-    public List<String> getParticipatnIds() {
-        return participatnIds;
+    public void setCreatorId(String creatorId) {
+        this.creatorId = creatorId;
+    }
+
+    public List<String> getParticipantIds() {
+        return participantIds;
     }
 
     public List<Transaction> getIncomeTransactions() {
@@ -77,24 +85,8 @@ public class Budget
         return debts;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setDesription(String desription) {
-        this.desription = desription;
-    }
-
-    public void setCreatorId(String creatorId) {
-        this.creatorId = creatorId;
-    }
-
-    public void setParticipatnIds(List<String> participatnIds) {
-        this.participatnIds = participatnIds;
+    public void setParticipantIds(List<String> participantIds) {
+        this.participantIds = participantIds;
     }
 
     public void setIncomeTransactions(List<Transaction> incomeTransactions) {
@@ -113,3 +105,4 @@ public class Budget
         this.debts = debts;
     }
 }
+
