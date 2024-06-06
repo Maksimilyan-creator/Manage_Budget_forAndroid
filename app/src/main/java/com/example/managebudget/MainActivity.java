@@ -9,15 +9,12 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -26,11 +23,13 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.managebudget.bottomnav.IncomeFragment;
-import com.example.managebudget.bottomnav.OutlayFragment;
+import com.example.managebudget.bottomnav.DashboardFragment;
+import com.example.managebudget.bottomnav.Statisticsfragment;
 import com.example.managebudget.bottomnav.ProfileFragment;
 import com.example.managebudget.budget.Budget;
 import com.example.managebudget.budget.BudgetViewModel;
+import com.example.managebudget.budget.Category;
+import com.example.managebudget.budget.Transaction;
 import com.example.managebudget.user.User;
 import com.example.managebudget.user.UserViewModel;
 import com.example.managebudget.users.Users;
@@ -137,8 +136,52 @@ public class MainActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 List<Budget> userBudgets = new ArrayList<>();
                 for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                    Budget budget = dataSnapshot.getValue(Budget.class);
-                    if (budget != null && (budget.getCreatorId().equals(userId) || (budget.getParticipantIds() !=null && budget.getParticipantIds().contains(userId)))){
+                    Budget budget = new Budget();
+                    budget.setId(dataSnapshot.child("id").getValue(String.class));
+                    budget.setName(dataSnapshot.child("name").getValue(String.class));
+                    budget.setDescription(dataSnapshot.child("description").getValue(String.class));
+                    budget.setCreatorId(dataSnapshot.child("creatorId").getValue(String.class));
+                    List<String> participantIds = new ArrayList<>();
+                    for (DataSnapshot participantSnapshot : dataSnapshot.child("participantIds").getChildren()) {
+                        participantIds.add(participantSnapshot.getValue(String.class));
+                    }
+                    budget.setParticipantIds(participantIds);
+
+                    // Получение списка доходных категорий
+                    List<Category> incomeCategories = new ArrayList<>();
+                    for (DataSnapshot categorySnapshot : dataSnapshot.child("incomeCategories").getChildren()) {
+                        String categoryName = categorySnapshot.child("name").getValue(String.class);
+                        incomeCategories.add(new Category(categoryName));
+                    }
+                    budget.setIncomeCategories(incomeCategories);
+
+                    // Получение списка расходных категорий
+                    List<Category> expenseCategories = new ArrayList<>();
+                    for (DataSnapshot categorySnapshot : dataSnapshot.child("expenseCategories").getChildren()) {
+                        String categoryName = categorySnapshot.child("name").getValue(String.class);
+                        expenseCategories.add(new Category(categoryName));
+                    }
+                    budget.setExpenceCategories(expenseCategories);
+
+                    // Добавление транзакций
+                    List<Transaction> incomeTransactions = new ArrayList<>();
+                    for (DataSnapshot transactionSnapshot : dataSnapshot.child("incomeTransactions").getChildren()) {
+                        Transaction transaction = transactionSnapshot.getValue(Transaction.class);
+                        incomeTransactions.add(transaction);
+                    }
+                    budget.setIncomeTransactions(incomeTransactions);
+
+                    List<Transaction> expenseTransactions = new ArrayList<>();
+                    for (DataSnapshot transactionSnapshot : dataSnapshot.child("expenseTransactions").getChildren()) {
+                        Transaction transaction = transactionSnapshot.getValue(Transaction.class);
+                        expenseTransactions.add(transaction);
+                    }
+                    budget.setExpenseTransactions(expenseTransactions);
+
+                    // цели, долги
+
+                    // Проверка условия
+                    if (budget != null && (budget.getCreatorId().equals(userId) || (budget.getParticipantIds() != null && budget.getParticipantIds().contains(userId)))){
                         userBudgets.add(budget);
                     }
                 }
@@ -156,6 +199,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
 
     private void loadUsersInfo() {
         ArrayList<Users> users = new ArrayList<>();
@@ -189,13 +233,13 @@ public class MainActivity extends AppCompatActivity {
     private void setupBottomNavigationView() {
         BottomNavigationView bottomNav = findViewById(R.id.bottom_nav);
         // Установка первого фрагмента
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new IncomeFragment()).commit();
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new DashboardFragment()).commit();
         bottomNav.setSelectedItemId(R.id.income);
 
         Map<Integer, Fragment> fragmentMap = new HashMap<>();
         fragmentMap.put(R.id.profile, new ProfileFragment());
-        fragmentMap.put(R.id.income, new IncomeFragment());
-        fragmentMap.put(R.id.outlay, new OutlayFragment());
+        fragmentMap.put(R.id.income, new DashboardFragment());
+        fragmentMap.put(R.id.outlay, new Statisticsfragment());
 
         bottomNav.setOnItemSelectedListener(item -> {
             Fragment fragment = fragmentMap.get(item.getItemId());
@@ -252,18 +296,20 @@ public class MainActivity extends AppCompatActivity {
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             budgetSpinner.setAdapter(adapter);
 
-            // Установка выбора
+            // Установка выбора бюджета
             String selectedBudgetId = sharedPreferences.getString("selectedBudgetId", null);
             if (selectedBudgetId != null) {
                 for (int i = 0; i < budgets.size(); i++) {
                     if (budgets.get(i).getId().equals(selectedBudgetId)) {
                         budgetSpinner.setSelection(i);
+                        // Установка в ViewModel
+                        budgetViewModel.setSelectedBudget(budgets.get(i));
                         break;
                     }
                 }
             }
 
-            // Сохранение выбора
+            // Сохранение выбора бюджета
             budgetSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -272,6 +318,9 @@ public class MainActivity extends AppCompatActivity {
                     editor.putString("selectedBudgetId", selectedBudget.getId());
                     editor.apply();
                     showToast("Выбран бюджет: " + selectedBudget.getName());
+
+                    // Передача в ViewModel
+                    budgetViewModel.setSelectedBudget(selectedBudget);
                 }
 
                 @Override

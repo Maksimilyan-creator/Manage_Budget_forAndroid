@@ -13,8 +13,16 @@ public class Budget {
     private String description;
     @PropertyName("creatorId")
     private String creatorId;
+    @PropertyName("participantIds")
     private List<String> participantIds;
+
+    @PropertyName("incomeCategories")
+    private List<Category> incomeCategories;
+    @PropertyName("expenceCategories")
+    private List<Category> expenceCategories;
+    @PropertyName("incomeTransactions")
     private List<Transaction> incomeTransactions;
+    @PropertyName("expenseTransactions")
     private List<Transaction> expenseTransactions;
     private List<Goal> goals;
     private List<Debt> debts;
@@ -30,43 +38,32 @@ public class Budget {
         this.creatorId = creatorId;
     }
 
-
-
-    // Геттеры и сеттеры
     public String getId() {
         return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public String getDescription() {
         return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 
     public String getCreatorId() {
         return creatorId;
     }
 
-    public void setCreatorId(String creatorId) {
-        this.creatorId = creatorId;
-    }
-
     public List<String> getParticipantIds() {
         return participantIds;
+    }
+
+    public List<Category> getIncomeCategories() {
+        return incomeCategories;
+    }
+
+    public List<Category> getExpenceCategories() {
+        return expenceCategories;
     }
 
     public List<Transaction> getIncomeTransactions() {
@@ -85,8 +82,32 @@ public class Budget {
         return debts;
     }
 
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setCreatorId(String creatorId) {
+        this.creatorId = creatorId;
+    }
+
     public void setParticipantIds(List<String> participantIds) {
         this.participantIds = participantIds;
+    }
+
+    public void setIncomeCategories(List<Category> incomeCategories) {
+        this.incomeCategories = incomeCategories;
+    }
+
+    public void setExpenceCategories(List<Category> expenceCategories) {
+        this.expenceCategories = expenceCategories;
     }
 
     public void setIncomeTransactions(List<Transaction> incomeTransactions) {

@@ -1,4 +1,4 @@
-package com.example.managebudget.bottomnav;
+package com.example.managebudget.DashBoard;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -11,13 +11,14 @@ import androidx.fragment.app.Fragment;
 
 import com.example.managebudget.R;
 
-public class IncomeFragment extends Fragment
+public class GoalsFragment extends Fragment
 {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.fragment_goals, container, false);
 
-        View rootView = inflater.inflate(R.layout.fragment_income, container, false);
+
 
         return rootView;
     }

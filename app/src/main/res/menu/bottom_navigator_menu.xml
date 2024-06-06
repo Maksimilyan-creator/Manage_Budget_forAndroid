@@ -8,14 +8,14 @@
 
     <item
         android:id="@+id/income"
-        android:title="Доходы"
-        android:icon="@drawable/income"
+        android:title="Финансы"
+        android:icon="@drawable/money"
         app:iconTint="@color/green"/>
 
     <item
         android:id="@+id/outlay"
-        android:title="Расходы"
-        android:icon="@drawable/outlay"
+        android:title="Статистика"
+        android:icon="@drawable/monitoring"
         app:iconTint="@color/red"/>
 
 </menu>

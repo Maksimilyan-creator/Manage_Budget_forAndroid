@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="horizontal"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/CategoryTV"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:textColor="@android:color/black"
+        android:fontFamily="@font/ubuntu_light"
+        android:textSize="20sp"
+
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Категория" />
+
+    <TextView
+        android:id="@+id/AmountTV"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_weight="1"
+
+        android:textColor="@android:color/black"
+        android:fontFamily="@font/ubuntu_light"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="@+id/CategoryTV"
+        app:layout_constraintStart_toEndOf="@+id/CategoryTV"
+        app:layout_constraintTop_toTopOf="@+id/CategoryTV"
+        tools:text="Сумма" />
+
+
+    <TextView
+        android:id="@+id/DateTV"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="40dp"
+        android:layout_weight="1"
+        android:textColor="@android:color/black"
+        android:fontFamily="@font/ubuntu_light"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="@+id/AmountTV"
+
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/AmountTV"
+        tools:text="Дата" />
+
+    <LinearLayout
+        android:id="@+id/textViewUserInfo"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:orientation="horizontal"
+        app:layout_constraintStart_toStartOf="@+id/CategoryTV"
+        app:layout_constraintTop_toBottomOf="@+id/CategoryTV">
+
+        <TextView
+            android:id="@+id/UserNameTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/black"
+            android:fontFamily="@font/ubuntu_light"
+            android:textSize="20sp"
+            tools:text="Имя" />
+
+        <TextView
+            android:id="@+id/UserEmailTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:textColor="@android:color/black"
+            android:fontFamily="@font/ubuntu_light"
+            android:textSize="15sp"
+            tools:text="Почта" />
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

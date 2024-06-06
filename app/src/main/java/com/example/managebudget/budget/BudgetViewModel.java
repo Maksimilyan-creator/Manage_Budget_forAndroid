@@ -13,6 +13,7 @@ import java.util.List;
 public class BudgetViewModel extends AndroidViewModel
 {
     private MutableLiveData<List<Budget>> budgets = new MutableLiveData<>();
+    private MutableLiveData<Budget> selectedBudget = new MutableLiveData<>();
 
     public BudgetViewModel (Application application)
     {
@@ -45,5 +46,13 @@ public class BudgetViewModel extends AndroidViewModel
             }
         }
         return budgetLiveData;
+    }
+    public LiveData<Budget> getSelectedBudget()
+    {
+        return selectedBudget;
+    }
+    public void setSelectedBudget(Budget budget)
+    {
+        selectedBudget.setValue(budget);
     }
 }
