@@ -32,7 +32,7 @@
             android:text="Создание дохода"
             android:textColor="@android:color/black"
             android:textSize="24sp"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/closeBt"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/closeBt" />
 
@@ -44,7 +44,7 @@
             android:background="@drawable/edit_text_background"
             android:fontFamily="@font/ubuntu_light"
             android:hint="Сумма"
-            android:inputType="text"
+            android:inputType="numberDecimal"
             android:padding="12dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -55,13 +55,27 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:background="@drawable/edit_text_background"
+            android:background="@drawable/spinner_background"
             android:fontFamily="@font/ubuntu_light"
-            android:hint="Описание"
             android:padding="12dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/TransactionAmountEt" />
+
+        <EditText
+            android:id="@+id/DateET"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/edit_text_background"
+            android:inputType="datetime"
+
+            android:hint="yyyy-MM-dd HH:mm:ss"
+            android:padding="12dp"
+            android:fontFamily="@font/ubuntu_light"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/TransactionCategorySpinner" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/BudgetCreateBt"
@@ -71,7 +85,7 @@
             android:src="@drawable/save"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/TransactionCategorySpinner" />
+            app:layout_constraintTop_toBottomOf="@+id/DateET" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

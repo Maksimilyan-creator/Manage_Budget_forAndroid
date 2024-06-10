@@ -50,6 +50,13 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersViewHolder>
 
     }
 
+    public void UpdateUsersAdapter(List<Users> newUsers)
+    {
+        users.clear();
+        users.addAll(newUsers);
+        notifyDataSetChanged();
+    }
+
     @Override
     public int getItemCount() {
         return users.size();

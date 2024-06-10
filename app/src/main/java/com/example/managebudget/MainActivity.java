@@ -7,6 +7,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.content.Context;
@@ -59,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseDatabase database;
     private FirebaseStorage storage;
     private FirebaseUser currentUser;
+    private String selecredBudgetId = "";
 
 
     @Override
@@ -84,150 +86,34 @@ public class MainActivity extends AppCompatActivity {
         budgetViewModel = new ViewModelProvider(this).get(BudgetViewModel.class);
         usersViewModel = new ViewModelProvider(this).get(UsersViewModel.class);
 
-        if (currentUser != null) {
-            loadUserData(currentUser.getUid());
-        } else {
+        // Загрузка данных из базы
+
+        if (currentUser != null)
+        {
+            userViewModel.loadUserData(currentUser.getUid(), database.getReference());
+            budgetViewModel.loadBudgetData(currentUser.getUid(), database.getReference(), new BudgetViewModel.OnBudgetsLoadedListener() {
+                @Override
+                public void onBudgetsLoaded() {
+                    budgetViewModel.getBudgets().observe(MainActivity.this, budgets -> {
+                        if (budgets.isEmpty())
+                        {
+                            showToast("У вас нет бюджетов");
+                        }
+                        else
+                        {
+                            setupBudgetSpinner(budgets);
+                        }
+                    });
+                }
+            });
+            usersViewModel.loadUsersData(database.getReference(), currentUser.getUid());
+        }
+        else
+        {
             navigateToLogin();
         }
 
         setupBottomNavigationView();
-    }
-
-    // Загрузка данных из базы
-    private void loadUserData(String userId) {
-        loadUserInfo(userId);
-        loadBudgetInfo(userId);
-        loadUsersInfo();
-    }
-
-    private void loadUserInfo(String userId) {
-        DatabaseReference userRef = database.getReference("users").child(userId);
-        userRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()) {
-                    String username = snapshot.child("username").getValue(String.class);
-                    String profileImage = snapshot.child("profileImage").getValue(String.class);
-                    String userEmail = snapshot.child("email").getValue(String.class);
-
-                    if (username != null && userEmail != null) {
-                        User user = new User(username, userEmail, profileImage);
-                        userViewModel.setUser(user);
-                    } else {
-                        Log.e("MainActivity", "Ошибка: username или email равны null");
-                        showToast("Ошибка загрузки данных пользователя");
-                    }
-                } else {
-                    showToast("Пользователь не найден");
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                showToast("Ошибка загрузки данных пользователя: " + error.getMessage());
-            }
-        });
-    }
-
-    private void loadBudgetInfo(String userId) {
-        DatabaseReference budgetRef = database.getReference("budget");
-        budgetRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                List<Budget> userBudgets = new ArrayList<>();
-                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                    Budget budget = new Budget();
-                    budget.setId(dataSnapshot.child("id").getValue(String.class));
-                    budget.setName(dataSnapshot.child("name").getValue(String.class));
-                    budget.setDescription(dataSnapshot.child("description").getValue(String.class));
-                    budget.setCreatorId(dataSnapshot.child("creatorId").getValue(String.class));
-                    List<String> participantIds = new ArrayList<>();
-                    for (DataSnapshot participantSnapshot : dataSnapshot.child("participantIds").getChildren()) {
-                        participantIds.add(participantSnapshot.getValue(String.class));
-                    }
-                    budget.setParticipantIds(participantIds);
-
-                    // Получение списка доходных категорий
-                    List<Category> incomeCategories = new ArrayList<>();
-                    for (DataSnapshot categorySnapshot : dataSnapshot.child("incomeCategories").getChildren()) {
-                        String categoryName = categorySnapshot.child("name").getValue(String.class);
-                        incomeCategories.add(new Category(categoryName));
-                    }
-                    budget.setIncomeCategories(incomeCategories);
-
-                    // Получение списка расходных категорий
-                    List<Category> expenseCategories = new ArrayList<>();
-                    for (DataSnapshot categorySnapshot : dataSnapshot.child("expenseCategories").getChildren()) {
-                        String categoryName = categorySnapshot.child("name").getValue(String.class);
-                        expenseCategories.add(new Category(categoryName));
-                    }
-                    budget.setExpenceCategories(expenseCategories);
-
-                    // Добавление транзакций
-                    List<Transaction> incomeTransactions = new ArrayList<>();
-                    for (DataSnapshot transactionSnapshot : dataSnapshot.child("incomeTransactions").getChildren()) {
-                        Transaction transaction = transactionSnapshot.getValue(Transaction.class);
-                        incomeTransactions.add(transaction);
-                    }
-                    budget.setIncomeTransactions(incomeTransactions);
-
-                    List<Transaction> expenseTransactions = new ArrayList<>();
-                    for (DataSnapshot transactionSnapshot : dataSnapshot.child("expenseTransactions").getChildren()) {
-                        Transaction transaction = transactionSnapshot.getValue(Transaction.class);
-                        expenseTransactions.add(transaction);
-                    }
-                    budget.setExpenseTransactions(expenseTransactions);
-
-                    // цели, долги
-
-                    // Проверка условия
-                    if (budget != null && (budget.getCreatorId().equals(userId) || (budget.getParticipantIds() != null && budget.getParticipantIds().contains(userId)))){
-                        userBudgets.add(budget);
-                    }
-                }
-                if (userBudgets.isEmpty()) {
-                    showToast("У вас нет бюджетов");
-                } else {
-                    budgetViewModel.setBudgets(userBudgets);
-                    setupBudgetSpinner(userBudgets);
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                showToast("Ошибка загрузки бюджетов: " + error.getMessage());
-            }
-        });
-    }
-
-
-    private void loadUsersInfo() {
-        ArrayList<Users> users = new ArrayList<>();
-        database.getReference("users").addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for (DataSnapshot userSnapshot : snapshot.getChildren()) {
-                    if (!userSnapshot.getKey().equals(currentUser.getUid())) {
-                        String userId = userSnapshot.getKey();
-                        String username = userSnapshot.child("username").getValue(String.class);
-                        String userEmail = userSnapshot.child("email").getValue(String.class);
-                        String profileImage = userSnapshot.child("profileImage").getValue(String.class);
-
-                        if (userId != null && username != null && userEmail != null && profileImage != null) {
-                            users.add(new Users(userId, username, userEmail, profileImage));
-                        } else {
-                            Log.e("MainActivity", "Ошибка: Неверные данные пользователя: " + userId);
-                        }
-                    }
-                }
-                usersViewModel.setUsers(users);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                showToast("Ошибка загрузки пользователей: " + error.getMessage());
-            }
-        });
     }
 
     private void setupBottomNavigationView() {
@@ -309,7 +195,10 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
-            // Сохранение выбора бюджета
+
+
+
+        // Сохранение выбора бюджета
             budgetSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -317,9 +206,14 @@ public class MainActivity extends AppCompatActivity {
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putString("selectedBudgetId", selectedBudget.getId());
                     editor.apply();
-                    showToast("Выбран бюджет: " + selectedBudget.getName());
 
-                    // Передача в ViewModel
+                    //проверка, изменился ли выбранный бюджет
+                    if (!selectedBudget.getId().equals(selectedBudgetId))
+                    {
+                        showToast("Выбран бюджет: " + selectedBudget.getName());
+                        selecredBudgetId = selectedBudget.getId();
+                    }
+
                     budgetViewModel.setSelectedBudget(selectedBudget);
                 }
 

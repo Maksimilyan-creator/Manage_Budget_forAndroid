@@ -1,6 +1,7 @@
 package com.example.managebudget.budget;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +11,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.managebudget.R;
 
@@ -25,56 +27,83 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CategoryAdapter extends BaseAdapter {
-    private List<Category> categories = new ArrayList<>();
-    private LayoutInflater inflater;
+public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHolder>
+{
+    private final LayoutInflater inflater;
+    private final List<Category> categories;
+    private OnCategoryClickListener onCategoryClickListener;
+    private OnCategoryLongClickListener onCategoryLongClickListener;
 
-    public CategoryAdapter(List<Category> categories, Context context) {
+    public CategoryAdapter(Context context, List<Category> categories, OnCategoryClickListener onCategoryClickListener, OnCategoryLongClickListener onCategoryLongClickListener)
+    {
         this.categories = categories;
-        inflater = LayoutInflater.from(context);
+        this.inflater = LayoutInflater.from(context);
+        this.onCategoryClickListener = onCategoryClickListener;
+        this.onCategoryLongClickListener = onCategoryLongClickListener;
+    }
+
+
+    @NonNull
+    @Override
+    public CategoryAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = inflater.inflate(R.layout.category_item, parent, false);
+        return new ViewHolder(view);
     }
 
     @Override
-    public int getCount() {
+    public void onBindViewHolder(@NonNull CategoryAdapter.ViewHolder holder, int position) {
+        Category category = categories.get(position);
+        holder.categoryNameTextView.setText(category.getName());
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onCategoryClickListener.onCategoryClick(category, position);
+            }
+        });
+
+        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                onCategoryLongClickListener.onCategoryLongClick(category, position);
+                return true;
+            }
+        });
+    }
+
+    @Override
+    public int getItemCount() {
         return categories.size();
     }
 
-    @Override
-    public Object getItem(int position) {
-        return categories.get(position);
-    }
-
-    @Override
-    public long getItemId(int position) {
-        return position;
-    }
-
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        ViewHolder holder;
-        if (convertView == null) {
-            convertView = inflater.inflate(R.layout.category_item, parent, false);
-            holder = new ViewHolder();
-            holder.categoryNameTextView = convertView.findViewById(R.id.categoryNameTextView);
-            convertView.setTag(holder);
-        } else {
-            holder = (ViewHolder) convertView.getTag();
-        }
-        Category category = (Category) getItem(position);
-        holder.categoryNameTextView.setText(category.getName());
-
-        return convertView;
-    }
-
-    public void updateCategories(List<Category> newCategories) {
+    public void UpdateAdapter(List<Category> newCategories)
+    {
         categories.clear();
         categories.addAll(newCategories);
+
         notifyDataSetChanged();
     }
 
-    static class ViewHolder {
-        TextView categoryNameTextView;
+    public static class ViewHolder extends RecyclerView.ViewHolder
+    {
+        final TextView categoryNameTextView;
+        ViewHolder(View view)
+        {
+            super(view);
+            categoryNameTextView = view.findViewById(R.id.categoryNameTextView);
+        }
     }
+
+    interface OnCategoryClickListener
+    {
+        void onCategoryClick(Category category, int position);
+    }
+
+    interface OnCategoryLongClickListener
+    {
+        void onCategoryLongClick(Category category, int position);
+    }
+
 }
 
 

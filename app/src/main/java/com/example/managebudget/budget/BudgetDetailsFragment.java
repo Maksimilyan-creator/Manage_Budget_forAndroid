@@ -188,14 +188,16 @@ public class BudgetDetailsFragment extends DialogFragment
 
         RecyclerView usersRecyclerView = dialog.findViewById(R.id.users_rv);
         ImageButton closeBt = dialog.findViewById(R.id.closeBt_users);
+        usersRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        usersRecyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
+
 
         UsersViewModel usersViewModel = new ViewModelProvider(requireActivity()).get(UsersViewModel.class);
 
-        usersViewModel.getUsersLiveData().observe(getViewLifecycleOwner(), new Observer<List<Users>>() {
+        usersViewModel.getUsers().observe(getViewLifecycleOwner(), new Observer<List<Users>>() {
             @Override
             public void onChanged(List<Users> users) {
-                usersRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-                usersRecyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
+
                 UsersAdapter adapter = new UsersAdapter(users, new UsersAdapter.OnUserClickListener() {
                     @Override
                     public void onUserClick(int position) {
@@ -254,7 +256,7 @@ public class BudgetDetailsFragment extends DialogFragment
 
     private void loadUsersParticipant()
     {
-        usersViewModel2.getUsersLiveData().observe(getViewLifecycleOwner(), new Observer<List<Users>>() {
+        usersViewModel2.getUsers().observe(getViewLifecycleOwner(), new Observer<List<Users>>() {
             @Override
             public void onChanged(List<Users> allusers)
             {

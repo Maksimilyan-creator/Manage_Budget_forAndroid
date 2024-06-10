@@ -2,7 +2,6 @@ package com.example.managebudget.budget;
 
 public class Transaction
 {
-    private String id;
     private String userId;
     private double amount;
     private String category;
@@ -10,17 +9,14 @@ public class Transaction
 
     public Transaction() {}
 
-    public Transaction(String id, String userId, double amount, String category, String date) {
-        this.id = id;
+    public Transaction( String userId, double amount, String category, String date) {
+
         this.userId = userId;
         this.amount = amount;
         this.category = category;
         this.date = date;
     }
 
-    public String getId() {
-        return id;
-    }
 
     public String getUserId() {
         return userId;
@@ -36,10 +32,6 @@ public class Transaction
 
     public String getDate() {
         return date;
-    }
-
-    public void setId(String id) {
-        this.id = id;
     }
 
     public void setUserId(String userId) {

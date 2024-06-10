@@ -124,6 +124,8 @@ public class Budget {
 
     public void setDebts(List<Debt> debts) {
         this.debts = debts;
+
+
     }
 }
 

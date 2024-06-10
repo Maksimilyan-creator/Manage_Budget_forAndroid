@@ -1,15 +1,12 @@
 package com.example.managebudget.DashBoard;
 
-import android.app.Dialog;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -17,17 +14,19 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.managebudget.R;
 import com.example.managebudget.budget.Budget;
 import com.example.managebudget.budget.BudgetViewModel;
-import com.example.managebudget.budget.BudgetsAdapter;
+import com.example.managebudget.budget.CategoriesIncome;
 import com.example.managebudget.budget.Category;
-import com.example.managebudget.budget.CategoryAdapter;
-import com.example.managebudget.budget.CreateBudgetFragment;
-import com.example.managebudget.budget.CreateCategoriesIncome;
 import com.example.managebudget.budget.CreateTransactionIncome;
 import com.example.managebudget.budget.Transaction;
+import com.example.managebudget.budget.TransactionAdapter;
+import com.example.managebudget.budget.UpdateTransaction;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -45,12 +44,12 @@ public class IncomeFragment extends Fragment
     FirebaseDatabase database;
     DatabaseReference usersRef;
     FirebaseUser currentUser;
-    ListView IncomeListView;
+    RecyclerView RecyclerViewTransaction;
     TransactionAdapter transactionAdapter;
-    FloatingActionButton IncomeSaveBt;
+    FloatingActionButton IncomeTransactionAdd;
     Button categoryAddBt;
     Budget budget1;
-    CategoryAdapter categoryAdapter;
+    List<Transaction> incomeTransactionList = new ArrayList<>();
 
 
     @Nullable
@@ -61,18 +60,31 @@ public class IncomeFragment extends Fragment
         budgetViewModel = new ViewModelProvider(requireActivity()).get(BudgetViewModel.class);
         database = FirebaseDatabase.getInstance("https://manage-budget-41977-default-rtdb.europe-west1.firebasedatabase.app");
         usersRef = database.getReference("users");
-        IncomeListView = rootView.findViewById(R.id.listViewIncome);
-        IncomeSaveBt = rootView.findViewById(R.id.IncomeSaveBt);
+        RecyclerViewTransaction = rootView.findViewById(R.id.RecyclerViewTransaction);
+        IncomeTransactionAdd = rootView.findViewById(R.id.IncomeSaveBt);
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
         categoryAddBt = rootView.findViewById(R.id.categoryAddBt);
 
-        budget1 = new Budget();
 
+        TransactionAdapter.OnTransactionClickLisneter onTransactionClickLisneter = new TransactionAdapter.OnTransactionClickLisneter() {
+            @Override
+            public void onTransactionClick(Transaction transaction, int position) {
+                OpenUpdateTransaction(transaction, position);
+            }
+        };
 
-        /*transactionAdapter = new TransactionAdapter(new ArrayList<>(), usersRef, requireContext());
-        IncomeListView.setAdapter(transactionAdapter);*/
-        categoryAdapter = new CategoryAdapter(new ArrayList<>(), requireContext());
-        IncomeListView.setAdapter(categoryAdapter);
+        TransactionAdapter.OnTransactionLongClickListener onTransactionLongClickListener = new TransactionAdapter.OnTransactionLongClickListener() {
+            @Override
+            public void onTransactionLongClick(Transaction transaction, int position) {
+                RemoveTransaction(transaction);
+            }
+        };
+
+        transactionAdapter = new TransactionAdapter(getContext(), new ArrayList<>(), usersRef, onTransactionClickLisneter, onTransactionLongClickListener);
+
+        RecyclerViewTransaction.setLayoutManager(new LinearLayoutManager(getContext()));
+        RecyclerViewTransaction.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
+        RecyclerViewTransaction.setAdapter(transactionAdapter);
 
         budgetViewModel.getSelectedBudget().observe(getViewLifecycleOwner(), new Observer<Budget>() {
             @Override
@@ -80,98 +92,79 @@ public class IncomeFragment extends Fragment
             {
                 if (budget !=null)
                 {
-                   /*List<Transaction> incomeTransactionList = budget.getIncomeTransactions();
+                    budget1 = budget;
+                    incomeTransactionList = budget.getIncomeTransactions();
                     if (incomeTransactionList != null)
                     {
-                        transactionAdapter.updateTransaction(incomeTransactionList);
-                    }*/
-                    List<Category> categoryIncomeList = budget.getIncomeCategories();
-                    if (categoryIncomeList != null)
-                    {
-                        categoryAdapter.updateCategories(categoryIncomeList);
+                        transactionAdapter.UpdateAdapter(incomeTransactionList);
                     }
-
-                    budget1 = budget;
+                    else
+                    {
+                        transactionAdapter.UpdateAdapter(new ArrayList<>());
+                    }
                 }
-
             }
         });
 
-        IncomeSaveBt.setOnClickListener(new View.OnClickListener() {
+        IncomeTransactionAdd.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {OpenCreateTransactionIncome();}});
+            public void onClick(View v) { OpenTransacrionIncome(); }});
 
         categoryAddBt.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {OpenAddCategories(v,budget1);}});
+            public void onClick(View v) { OpenCategoriesIncome(); }});
 
 
 
         return rootView;
     }
 
-    public void OpenCreateTransactionIncome()
+    public void OpenCategoriesIncome()
+    {
+        CategoriesIncome categoriesIncome = new CategoriesIncome();
+        categoriesIncome.show(getParentFragmentManager(), "CategoriesIncome");
+    }
+
+    public void OpenTransacrionIncome()
     {
         CreateTransactionIncome createTransactionIncome = new CreateTransactionIncome();
         createTransactionIncome.show(getParentFragmentManager(), "CreateTransactionIncome");
     }
 
-
-    public void OpenAddCategories(View v, Budget budget1)
+    public void OpenUpdateTransaction(Transaction selectedTransaction, int position)
     {
-        final Dialog dialog = new Dialog(v.getContext());
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setCancelable(false);
-        dialog.setContentView(R.layout.fragment_add_categories);
-        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        UpdateTransaction updateTransaction = new UpdateTransaction(selectedTransaction, position);
+        updateTransaction.show(getParentFragmentManager(), "UpdateTransaction");
+    }
 
-        final EditText CategoryET = dialog.findViewById(R.id.CategoryET);
-        final FloatingActionButton CategoryAdd = dialog.findViewById(R.id.CategoryAdd);
-        final ImageButton closeBt = dialog.findViewById(R.id.closeBt);
+    public void RemoveTransaction(Transaction transaction)
+    {
+        new AlertDialog.Builder(getContext())
+                .setTitle("Удалить транзакцию")
+                .setMessage("Вы уверены, что хотите удалить транзакцию категории " + transaction.getCategory() + ", на сумму " + transaction.getAmount() + " рублей" + "?")
+                .setPositiveButton("Да", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        budget1.getIncomeTransactions().remove(transaction);
 
-        CategoryAdd.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String category = CategoryET.getText().toString();
-                if (!category.trim().isEmpty())
-                {
-                    Category category1 = new Category(category);
-                    if (budget1.getIncomeCategories() == null)
-                    {
-                        budget1.setIncomeCategories(new ArrayList<>());
+                        DatabaseReference budgetRef = database.getReference("budget").child(budget1.getId());
+                        budgetRef.child("incomeTransactions").setValue(budget1.getIncomeTransactions()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if (task.isSuccessful())
+                                {
+                                    Toast.makeText(getContext(), "Транзакция удалена", Toast.LENGTH_SHORT).show();
+                                }
+                                else
+                                {
+                                    Toast.makeText(getContext(), "Ошибка удаления", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
                     }
-                    budget1.getIncomeCategories().add(category1);
-                    DatabaseReference budgetRef = database.getReference("budget").child(budget1.getId());
-                    budgetRef.child("incomeCategories").setValue(budget1.getIncomeCategories()).addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if (task.isSuccessful())
-                            {
-                                Toast.makeText(getContext(), "Категория добавлена", Toast.LENGTH_SHORT).show();
-                                dialog.dismiss();
-                            }
-                            else
-                            {
-                                Toast.makeText(getContext(), "Ошибка добавления", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    });
-                }
-                else
-                {
-                    Toast.makeText(requireContext(), "Поле не может быть пустым", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-
-        closeBt.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {dialog.dismiss();}});
-
-        dialog.show();
-
+                })
+                .setNegativeButton("Нет", null).show();
     }
 
-
-    }
+}
 
