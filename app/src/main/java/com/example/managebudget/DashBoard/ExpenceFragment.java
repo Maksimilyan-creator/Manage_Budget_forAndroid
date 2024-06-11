@@ -21,14 +21,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.managebudget.R;
 import com.example.managebudget.budget.Budget;
 import com.example.managebudget.budget.BudgetViewModel;
-import com.example.managebudget.budget.CategoriesIncome;
-
-
-import com.example.managebudget.budget.CreateTransactionIncome;
+import com.example.managebudget.budget.CategoriesExpence;
+import com.example.managebudget.budget.CreateTransactionExpence;
 import com.example.managebudget.budget.Transaction;
-
 import com.example.managebudget.budget.TransactionAdapter;
-import com.example.managebudget.budget.UpdateTransaction;
+import com.example.managebudget.budget.UpdateTransactionExpense;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -40,7 +37,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import java.util.ArrayList;
 import java.util.List;
 
-public class IncomeFragment extends Fragment
+public class ExpenceFragment extends Fragment
 {
     private BudgetViewModel budgetViewModel;
     FirebaseDatabase database;
@@ -48,25 +45,23 @@ public class IncomeFragment extends Fragment
     FirebaseUser currentUser;
     RecyclerView RecyclerViewTransaction;
     TransactionAdapter transactionAdapter;
-    FloatingActionButton IncomeTransactionAdd;
+    FloatingActionButton ExpenseTransactionAdd;
     Button categoryAddBt;
-    Budget budget1;
-    List<Transaction> incomeTransactionList = new ArrayList<>();
-
+    Budget budget3;
+    List<Transaction> expenseTransactionList = new ArrayList<>();
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_income, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_expense, container, false);
 
         budgetViewModel = new ViewModelProvider(requireActivity()).get(BudgetViewModel.class);
         database = FirebaseDatabase.getInstance("https://manage-budget-41977-default-rtdb.europe-west1.firebasedatabase.app");
         usersRef = database.getReference("users");
-        RecyclerViewTransaction = rootView.findViewById(R.id.RecyclerViewTransaction);
-        IncomeTransactionAdd = rootView.findViewById(R.id.IncomeSaveBt);
+        RecyclerViewTransaction = rootView.findViewById(R.id.RecyclerViewTransactionn);
+        ExpenseTransactionAdd = rootView.findViewById(R.id.ExpenseSaveBtt);
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        categoryAddBt = rootView.findViewById(R.id.categoryAddBt);
-
+        categoryAddBt = rootView.findViewById(R.id.categoryAddBtt);
 
         TransactionAdapter.OnTransactionClickLisneter onTransactionClickLisneter = new TransactionAdapter.OnTransactionClickLisneter() {
             @Override
@@ -90,59 +85,54 @@ public class IncomeFragment extends Fragment
 
         budgetViewModel.getSelectedBudget().observe(getViewLifecycleOwner(), new Observer<Budget>() {
             @Override
-            public void onChanged(Budget budget)
-            {
-                if (budget !=null)
+            public void onChanged(Budget budget) {
+                if (budget != null)
                 {
-                    budget1 = budget;
-                    incomeTransactionList = budget.getIncomeTransactions();
-                    if (incomeTransactionList != null)
+                    budget3 = budget;
+                    expenseTransactionList = budget.getExpenseTransactions();
+                    if (expenseTransactionList != null)
                     {
-                        transactionAdapter.UpdateAdapter(incomeTransactionList);
+                        transactionAdapter.UpdateAdapter(expenseTransactionList);
                     }
                     else
                     {
                         transactionAdapter.UpdateAdapter(new ArrayList<>());
                     }
+
                 }
             }
         });
 
-        IncomeTransactionAdd.setOnClickListener(new View.OnClickListener() {
+        ExpenseTransactionAdd.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) { OpenTransacrionIncome(); }});
+            public void onClick(View v) { OpenTransactionExpense(); }});
 
         categoryAddBt.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) { OpenCategoriesIncome(); }});
-
-
+            public void onClick(View v) { OpenCategoriesExpense(); }});
 
         return rootView;
     }
 
-    public void OpenCategoriesIncome()
+    public void OpenCategoriesExpense()
     {
-        CategoriesIncome categoriesIncome = new CategoriesIncome();
-        categoriesIncome.show(getParentFragmentManager(), "CategoriesIncome");
+        CategoriesExpence categoriesExpence = new CategoriesExpence();
+        categoriesExpence.show(getParentFragmentManager(), "CategoriesExpence");
     }
 
-    public void OpenTransacrionIncome()
+    public void OpenTransactionExpense()
     {
-        if (budget1.getIncomeCategories() == null)
-        {
-            Toast.makeText(getContext(), "Сначала добавьте категорию", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        CreateTransactionIncome createTransactionIncome = new CreateTransactionIncome();
-        createTransactionIncome.show(getParentFragmentManager(), "CreateTransactionIncome");
+        CreateTransactionExpence createTransactionExpence = new CreateTransactionExpence();
+        createTransactionExpence.show(getParentFragmentManager(), "CreateTransactionExpence");
+
     }
 
     public void OpenUpdateTransaction(Transaction selectedTransaction, int position)
     {
-        UpdateTransaction updateTransaction = new UpdateTransaction(selectedTransaction, position);
-        updateTransaction.show(getParentFragmentManager(), "UpdateTransaction");
+        UpdateTransactionExpense updateTransactionExpense = new UpdateTransactionExpense(selectedTransaction, position);
+        updateTransactionExpense.show(getParentFragmentManager(), "UpdateTransactionExpense");
     }
+
 
     public void RemoveTransaction(Transaction transaction)
     {
@@ -152,10 +142,10 @@ public class IncomeFragment extends Fragment
                 .setPositiveButton("Да", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        budget1.getIncomeTransactions().remove(transaction);
+                        budget3.getExpenseTransactions().remove(transaction);
 
-                        DatabaseReference budgetRef = database.getReference("budget").child(budget1.getId());
-                        budgetRef.child("incomeTransactions").setValue(budget1.getIncomeTransactions()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        DatabaseReference budgetRef = database.getReference("budget").child(budget3.getId());
+                        budgetRef.child("expenseTransactions").setValue(budget3.getExpenseTransactions()).addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
                                 if (task.isSuccessful())
@@ -171,7 +161,6 @@ public class IncomeFragment extends Fragment
                     }
                 })
                 .setNegativeButton("Нет", null).show();
+
     }
-
 }
-

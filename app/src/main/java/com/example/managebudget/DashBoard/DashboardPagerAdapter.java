@@ -20,7 +20,7 @@ public class DashboardPagerAdapter extends FragmentStateAdapter
             case 0:
                 return new IncomeFragment();
             case 1:
-                return new ExpenseFragment();
+                return new ExpenceFragment();
             case 2:
                 return new GoalsFragment();
             case 3:

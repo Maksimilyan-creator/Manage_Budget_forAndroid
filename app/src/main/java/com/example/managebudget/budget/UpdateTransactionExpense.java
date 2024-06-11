@@ -10,6 +10,7 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -33,7 +34,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class UpdateTransaction extends DialogFragment
+public class UpdateTransactionExpense extends DialogFragment
 {
     FirebaseDatabase database;
     FirebaseUser currentUser;
@@ -41,7 +42,7 @@ public class UpdateTransaction extends DialogFragment
     EditText TransactionAmountEt;
     Spinner TransactionCategorySpinner;
     EditText DateET;
-    List<Category> incomeCategories = new ArrayList<>();
+    List<Category> expenseCategories = new ArrayList<>();
     BudgetViewModel budgetViewModel2;
     Budget budget2;
     Transaction selectedTransaction;
@@ -49,9 +50,11 @@ public class UpdateTransaction extends DialogFragment
 
     FloatingActionButton BudgerUpdate;
 
+    TextView title;
 
 
-    public UpdateTransaction(Transaction  currentTransaction, int positionTransaction)
+
+    public UpdateTransactionExpense(Transaction  currentTransaction, int positionTransaction)
     {
         selectedTransaction = currentTransaction;
         this.positionTransaction = positionTransaction;
@@ -69,6 +72,8 @@ public class UpdateTransaction extends DialogFragment
         TransactionCategorySpinner = rootView.findViewById(R.id.TransactionCategorySpinner);
         DateET = rootView.findViewById(R.id.DateET);
         BudgerUpdate = rootView.findViewById(R.id.BudgetCreateBt);
+        title = rootView.findViewById(R.id.textView);
+        title.setText("Изменение расхода");
 
         budgetViewModel2 = new ViewModelProvider(requireActivity()).get(BudgetViewModel.class);
 
@@ -76,9 +81,9 @@ public class UpdateTransaction extends DialogFragment
             @Override
             public void onChanged(Budget budget) {
                 budget2 = budget;
-                if (budget.getIncomeCategories() !=null)
+                if (budget.getExpenceCategories() !=null)
                 {
-                    incomeCategories = budget.getIncomeCategories();
+                    expenseCategories = budget.getExpenceCategories();
                     setupSpinner();
                 }
             }
@@ -122,7 +127,7 @@ public class UpdateTransaction extends DialogFragment
 
     private void setupSpinner() {
         List<String> categoryNames = new ArrayList<>();
-        for (Category category : incomeCategories)
+        for (Category category : expenseCategories)
         {
             categoryNames.add(category.getName());
         }
@@ -165,7 +170,7 @@ public class UpdateTransaction extends DialogFragment
             selectedTransaction.setDate(newDate);
 
             DatabaseReference budgetRef = database.getReference("budget").child(budget2.getId());
-            budgetRef.child("incomeTransactions").child(String.valueOf(positionTransaction)).setValue(selectedTransaction)
+            budgetRef.child("expenseTransactions").child(String.valueOf(positionTransaction)).setValue(selectedTransaction)
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void unused) {
@@ -182,10 +187,7 @@ public class UpdateTransaction extends DialogFragment
         }
         else
         {
-           Toast.makeText(getContext(), "Поля не могут быть пустыми", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Поля не могут быть пустыми", Toast.LENGTH_SHORT).show();
         }
     }
-
 }
-
-

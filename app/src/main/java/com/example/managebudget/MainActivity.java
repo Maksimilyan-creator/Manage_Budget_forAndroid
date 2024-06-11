@@ -6,10 +6,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -20,6 +23,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.FrameLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -51,7 +55,12 @@ import java.util.List;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
+
+
     private Toolbar toolbar;
+    private FrameLayout fragment_container;
+    private BottomNavigationView bottom_nav;
+    private ConstraintLayout ProggresBar;
     private Spinner budgetSpinner;
     private SharedPreferences sharedPreferences;
     private UserViewModel userViewModel;
@@ -62,19 +71,20 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseUser currentUser;
     private String selecredBudgetId = "";
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Натсройка Toolbar
         toolbar = findViewById(R.id.toolbar);
+        fragment_container = findViewById(R.id.fragment_container);
+        bottom_nav = findViewById(R.id.bottom_nav);
+        ProggresBar = findViewById(R.id.ProggresBar);
+        budgetSpinner = findViewById(R.id.budget_spinner);
 
+        // Натсройка Toolbar
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
-
-        budgetSpinner = findViewById(R.id.budget_spinner);
 
         // Инициализация Firebase и ViewModel
         database = FirebaseDatabase.getInstance("https://manage-budget-41977-default-rtdb.europe-west1.firebasedatabase.app");
@@ -86,11 +96,14 @@ public class MainActivity extends AppCompatActivity {
         budgetViewModel = new ViewModelProvider(this).get(BudgetViewModel.class);
         usersViewModel = new ViewModelProvider(this).get(UsersViewModel.class);
 
+        showLoadingAnimation();
+
         // Загрузка данных из базы
 
         if (currentUser != null)
         {
             userViewModel.loadUserData(currentUser.getUid(), database.getReference());
+            usersViewModel.loadUsersData(database.getReference(), currentUser.getUid());
             budgetViewModel.loadBudgetData(currentUser.getUid(), database.getReference(), new BudgetViewModel.OnBudgetsLoadedListener() {
                 @Override
                 public void onBudgetsLoaded() {
@@ -103,45 +116,77 @@ public class MainActivity extends AppCompatActivity {
                         {
                             setupBudgetSpinner(budgets);
                         }
+                        hideLoadingAnimation();
                     });
                 }
             });
-            usersViewModel.loadUsersData(database.getReference(), currentUser.getUid());
         }
         else
         {
             navigateToLogin();
+            hideLoadingAnimation();
         }
 
         setupBottomNavigationView();
     }
 
     private void setupBottomNavigationView() {
-        BottomNavigationView bottomNav = findViewById(R.id.bottom_nav);
-        // Установка первого фрагмента
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new DashboardFragment()).commit();
-        bottomNav.setSelectedItemId(R.id.income);
+        bottom_nav.setOnItemSelectedListener(item -> {
+            Fragment fragment = null;
+            String tag = null;
+            int itemId = item.getItemId();
 
-        Map<Integer, Fragment> fragmentMap = new HashMap<>();
-        fragmentMap.put(R.id.profile, new ProfileFragment());
-        fragmentMap.put(R.id.income, new DashboardFragment());
-        fragmentMap.put(R.id.outlay, new Statisticsfragment());
+            if (itemId == R.id.profile)
+            {
+                fragment = getSupportFragmentManager().findFragmentByTag("ProfileFragment");
+                if (fragment == null)
+                {
+                    fragment = new ProfileFragment();
+                    getSupportFragmentManager().beginTransaction()
+                            .add(R.id.fragment_container, fragment, tag)
+                            .commit();
 
-        bottomNav.setOnItemSelectedListener(item -> {
-            Fragment fragment = fragmentMap.get(item.getItemId());
-            if (fragment != null) {
-                if (item.getItemId() == R.id.profile)
-                {
-                    getSupportActionBar().hide();
                 }
-                else
-                {
-                    getSupportActionBar().show();
-                }
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, fragment).commit();
             }
+            else if (itemId == R.id.dashboard)
+            {
+                fragment = getSupportFragmentManager().findFragmentByTag("DashboardFragment");
+                if (fragment == null)
+                {
+                    fragment = new DashboardFragment();
+                    getSupportFragmentManager().beginTransaction()
+                            .add(R.id.fragment_container, fragment, tag)
+                            .commit();
+                }
+            }
+            else if (itemId == R.id.statistic)
+            {
+                fragment = getSupportFragmentManager().findFragmentByTag("Statisticsfragment");
+                if (fragment == null)
+                {
+                    fragment = new Statisticsfragment();
+                    getSupportFragmentManager().beginTransaction()
+                            .add(R.id.fragment_container, fragment, tag)
+                            .commit();
+                }
+            }
+
+            if (fragment != null) {
+                for (Fragment frag : getSupportFragmentManager().getFragments()) {
+                    getSupportFragmentManager().beginTransaction().hide(frag).commit();
+                }
+                getSupportFragmentManager().beginTransaction().show(fragment).commit();
+            }
+
             return true;
+
         });
+
+        bottom_nav.setSelectedItemId(R.id.dashboard);
+        Fragment initialFragment = new DashboardFragment();
+        getSupportFragmentManager().beginTransaction()
+                .add(R.id.fragment_container, initialFragment, "DashboardFragment")
+                .commit();
     }
 
     private void navigateToLogin() {
@@ -172,7 +217,7 @@ public class MainActivity extends AppCompatActivity {
                 public View getDropDownView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
                     if (convertView == null)
                     {
-                        convertView = LayoutInflater.from(getContext()).inflate(R.layout.spinner_item, parent, false);
+                        convertView = LayoutInflater.from(getContext()).inflate(android.R.layout.simple_spinner_dropdown_item, parent, false);
                     }
                     TextView textView = convertView.findViewById(android.R.id.text1);
                     textView.setText(budgets.get(position).getName());
@@ -194,9 +239,6 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             }
-
-
-
 
         // Сохранение выбора бюджета
             budgetSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -221,6 +263,23 @@ public class MainActivity extends AppCompatActivity {
                 public void onNothingSelected(AdapterView<?> parent) {}
             });
         }
+
+        private void showLoadingAnimation()
+        {
+            toolbar.setVisibility(View.GONE);
+            fragment_container.setVisibility(View.GONE);
+            bottom_nav.setVisibility(View.GONE);
+            ProggresBar.setVisibility(View.VISIBLE);
+        }
+
+        private void hideLoadingAnimation()
+        {
+            ProggresBar.setVisibility(View.GONE);
+            toolbar.setVisibility(View.VISIBLE);
+            fragment_container.setVisibility(View.VISIBLE);
+            bottom_nav.setVisibility(View.VISIBLE);
+        }
+
     }
 
 

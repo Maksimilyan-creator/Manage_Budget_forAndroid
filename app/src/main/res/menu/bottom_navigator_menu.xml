@@ -7,13 +7,13 @@
     android:icon="@drawable/username_icon"/>
 
     <item
-        android:id="@+id/income"
+        android:id="@+id/dashboard"
         android:title="Финансы"
         android:icon="@drawable/money"
         app:iconTint="@color/green"/>
 
     <item
-        android:id="@+id/outlay"
+        android:id="@+id/statistic"
         android:title="Статистика"
         android:icon="@drawable/monitoring"
         app:iconTint="@color/red"/>

@@ -1,5 +1,7 @@
 package com.example.managebudget.budget;
 
+import com.example.managebudget.budget.Debt.Debt;
+import com.example.managebudget.budget.Goal.Goal;
 import com.google.firebase.database.PropertyName;
 
 import java.util.List;

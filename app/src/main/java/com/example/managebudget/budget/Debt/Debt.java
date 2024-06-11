@@ -1,27 +1,29 @@
-package com.example.managebudget.budget;
+package com.example.managebudget.budget.Debt;
+
+import com.example.managebudget.budget.Payments;
 
 import java.util.List;
 
 public class Debt
 {
-    private String id;
+    private String userId;
     private String description;
     private double amount;
     private String deadline;
     private List<Payments> payments;
 
-    public Debt () {}
+    public Debt() {}
 
-    public Debt(String id, String description, double amount, String deadline, List<Payments> payments) {
-        this.id = id;
+    public Debt(String userId, String description, double amount, String deadline, List<Payments> payments) {
+        this.userId = userId;
         this.description = description;
         this.amount = amount;
         this.deadline = deadline;
         this.payments = payments;
     }
 
-    public String getId() {
-        return id;
+    public String getUserId() {
+        return userId;
     }
 
     public String getDescription() {
@@ -40,8 +42,8 @@ public class Debt
         return payments;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     public void setDescription(String description) {

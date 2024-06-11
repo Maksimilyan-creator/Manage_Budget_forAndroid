@@ -29,6 +29,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -239,7 +240,6 @@ public class ProfileFragment extends Fragment {
                     });
         }
     }
-
 
     private void openCreateBudget() {
         CreateBudgetFragment createBudgetFragment = new CreateBudgetFragment();

@@ -4,13 +4,11 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -25,7 +23,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.managebudget.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
@@ -34,9 +31,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CategoriesIncome extends DialogFragment
+public class CategoriesExpence extends DialogFragment
 {
-
     EditText CategoryET;
     ImageButton CategoryAdd;
     ImageButton CategoryUpdate;
@@ -50,12 +46,10 @@ public class CategoriesIncome extends DialogFragment
     CategoryAdapter categoryAdapter;
     Category selectedCategory;
 
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-
-        View rootView = inflater.inflate(R.layout.fragment_categories_income, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_categories_income, container,false);
 
         CategoryET = rootView.findViewById(R.id.CategoryET);
         CategoryAdd = rootView.findViewById(R.id.CategorySave);
@@ -92,7 +86,6 @@ public class CategoriesIncome extends DialogFragment
         categoryAdapter = new CategoryAdapter(getContext(), new ArrayList<>(), onCategoryClickListener, onCategoryLongClickListener);
         CategoriesRecyclerView.setAdapter(categoryAdapter);
 
-
         budgetViewModel1.getSelectedBudget().observe(getViewLifecycleOwner(), new Observer<Budget>() {
             @Override
             public void onChanged(Budget budget)
@@ -100,11 +93,11 @@ public class CategoriesIncome extends DialogFragment
                 if (budget !=null)
                 {
 
-                    List<Category> categoryIncomeList = budget.getIncomeCategories();
-                    if (categoryIncomeList != null)
+                    List<Category> categoryExpenceList = budget.getExpenceCategories();
+                    if (categoryExpenceList != null)
                     {
 
-                       categoryAdapter.UpdateAdapter(categoryIncomeList);
+                        categoryAdapter.UpdateAdapter(categoryExpenceList);
                     }
                     else
                     {
@@ -116,7 +109,6 @@ public class CategoriesIncome extends DialogFragment
 
             }
         });
-
 
         CategoryAdd.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -130,10 +122,7 @@ public class CategoriesIncome extends DialogFragment
             @Override
             public void onClick(View v) { UpdateCategories(); } });
 
-
         return rootView;
-
-
     }
 
     @NonNull
@@ -150,13 +139,13 @@ public class CategoriesIncome extends DialogFragment
         if (!category.trim().isEmpty())
         {
             Category category1 = new Category(category);
-            if (budget1.getIncomeCategories() == null)
+            if (budget1.getExpenceCategories() == null)
             {
-                budget1.setIncomeCategories(new ArrayList<>());
+                budget1.setExpenceCategories(new ArrayList<>());
             }
-            budget1.getIncomeCategories().add(category1);
+            budget1.getExpenceCategories().add(category1);
             DatabaseReference budgetRef = database.getReference("budget").child(budget1.getId());
-            budgetRef.child("incomeCategories").setValue(budget1.getIncomeCategories()).addOnCompleteListener(new OnCompleteListener<Void>() {
+            budgetRef.child("expenceCategories").setValue(budget1.getExpenceCategories()).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
                     if (task.isSuccessful())
@@ -177,11 +166,9 @@ public class CategoriesIncome extends DialogFragment
         }
     }
 
-    public void UpdateCategories()
-    {
+    public void UpdateCategories() {
         String updateCategory = CategoryET.getText().toString().trim();
-        if (updateCategory.isEmpty())
-        {
+        if (updateCategory.isEmpty()) {
             Toast.makeText(requireContext(), "Поле не может быть пустым", Toast.LENGTH_SHORT).show();
             CategoryET.setText("");
             CategoryUpdate.setVisibility(View.GONE);
@@ -189,8 +176,7 @@ public class CategoriesIncome extends DialogFragment
             selectedCategory = null;
             return;
         }
-        if (updateCategory.equals(selectedCategory.getName()))
-        {
+        if (updateCategory.equals(selectedCategory.getName())) {
             Toast.makeText(requireContext(), "Категория не изменилась", Toast.LENGTH_SHORT).show();
             CategoryET.setText("");
             CategoryUpdate.setVisibility(View.GONE);
@@ -201,28 +187,22 @@ public class CategoriesIncome extends DialogFragment
         selectedCategory.setName(updateCategory);
 
         DatabaseReference budgetRef = database.getReference("budget").child(budget1.getId());
-        budgetRef.child("incomeCategories").setValue(budget1.getIncomeCategories()).addOnCompleteListener(new OnCompleteListener<Void>() {
+        budgetRef.child("expenceCategories").setValue(budget1.getExpenceCategories()).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
-            public void onComplete(@NonNull Task<Void> task)
-            {
-                if (task.isSuccessful())
-                {
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
                     Toast.makeText(getContext(), "Категория обновлена", Toast.LENGTH_SHORT).show();
                     CategoryET.setText("");
                     CategoryUpdate.setVisibility(View.GONE);
                     CategoryAdd.setVisibility(View.VISIBLE);
                     selectedCategory = null;
-                }
-                else
-                {
+                } else {
                     Toast.makeText(getContext(), "Ошибка обновления", Toast.LENGTH_SHORT).show();
                 }
             }
 
         });
-
     }
-
     public void RemoveCategory(Category category)
     {
         new AlertDialog.Builder(getContext())
@@ -231,10 +211,10 @@ public class CategoriesIncome extends DialogFragment
                 .setPositiveButton("Да", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        budget1.getIncomeCategories().remove(category);
+                        budget1.getExpenceCategories().remove(category);
 
                         DatabaseReference budgetRef = database.getReference("budget").child(budget1.getId());
-                        budgetRef.child("incomeCategories").setValue(budget1.getIncomeCategories()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        budgetRef.child("expenceCategories").setValue(budget1.getExpenceCategories()).addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
                                 if (task.isSuccessful())

@@ -9,6 +9,7 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -30,14 +31,13 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class CreateTransactionIncome extends DialogFragment
+public class CreateTransactionExpence extends DialogFragment
 {
     FirebaseDatabase database;
     FirebaseUser currentUser;
@@ -45,13 +45,14 @@ public class CreateTransactionIncome extends DialogFragment
     EditText TransactionAmountEt;
     Spinner TransactionCategorySpinner;
     EditText DateET;
+    TextView title;
 
     FloatingActionButton BudgetCreateBt;
-    List<Category> incomeCategories = new ArrayList<>();
+    List<Category> expenceCategories = new ArrayList<>();
     BudgetViewModel budgetViewModel2;
     Budget budget2;
 
-    List<Transaction> incomeTransactionList = new ArrayList<>();
+    List<Transaction> expenceTransactionList = new ArrayList<>();
 
 
     @Nullable
@@ -68,6 +69,8 @@ public class CreateTransactionIncome extends DialogFragment
 
         budgetViewModel2 = new ViewModelProvider(requireActivity()).get(BudgetViewModel.class);
 
+        title = rootView.findViewById(R.id.textView);
+        title.setText("Создание расхода");
 
         DateET.setText(getCurrentDateTime());
 
@@ -75,14 +78,14 @@ public class CreateTransactionIncome extends DialogFragment
             @Override
             public void onChanged(Budget budget) {
                 budget2 = budget;
-                if (budget.getIncomeCategories() !=null)
+                if (budget.getExpenceCategories() !=null)
                 {
-                    incomeCategories = budget.getIncomeCategories();
+                    expenceCategories = budget.getExpenceCategories();
                     setupSpinner();
                 }
-                if (budget.getIncomeTransactions() !=null)
+                if (budget.getExpenseTransactions() !=null)
                 {
-                    incomeTransactionList = budget.getIncomeTransactions();
+                    expenceTransactionList = budget.getExpenseTransactions();
                 }
             }
         });
@@ -118,7 +121,7 @@ public class CreateTransactionIncome extends DialogFragment
 
     private void setupSpinner() {
         List<String> categoryNames = new ArrayList<>();
-        for (Category category : incomeCategories)
+        for (Category category : expenceCategories)
         {
             categoryNames.add(category.getName());
         }
@@ -135,18 +138,16 @@ public class CreateTransactionIncome extends DialogFragment
         String category = TransactionCategorySpinner.getSelectedItem().toString();
         String date = DateET.getText().toString();
 
-
         if (!amount.trim().isEmpty() && !userId.isEmpty() && !category.isEmpty() && !date.trim().isEmpty())
         {
-
             Transaction newTransaction = new Transaction(userId, Double.parseDouble(amount), category, date);
-            if (budget2.getIncomeTransactions() == null)
+            if (budget2.getExpenseTransactions() == null)
             {
-                budget2.setIncomeTransactions(new ArrayList<>());
+                budget2.setExpenseTransactions(new ArrayList<>());
             }
-            budget2.getIncomeTransactions().add(newTransaction);
+            budget2.getExpenseTransactions().add(newTransaction);
             DatabaseReference budgetRef = database.getReference("budget").child(budget2.getId());
-            budgetRef.child("incomeTransactions").setValue(budget2.getIncomeTransactions()).addOnCompleteListener(new OnCompleteListener<Void>() {
+            budgetRef.child("expenseTransactions").setValue(budget2.getExpenseTransactions()).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
                     if (task.isSuccessful())

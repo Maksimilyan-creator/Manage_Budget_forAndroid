@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import com.example.managebudget.R;
@@ -23,4 +24,5 @@ public class Statisticsfragment extends Fragment
 
         return rootView;
     }
+
 }

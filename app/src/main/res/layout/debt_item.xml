@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:padding="16dp">
+
+    <Button
+        android:id="@+id/addPaymentBt"
+        android:layout_width="100dp"
+        android:layout_height="45dp"
+        android:layout_marginTop="16dp"
+        android:textSize="16sp"
+        android:text="Оплатить"
+        style="@style/MaterialAlertDialog.Material3.Body.Text"
+        android:background="@color/green"
+        android:textColor="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewUserInfo" />
+    <TextView
+        android:id="@+id/status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/ubuntu_light"
+        android:text=""
+        android:textColor="@android:color/black"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/DescriptionTv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:fontFamily="@font/ubuntu_light"
+        android:text="Описание"
+        android:textColor="@android:color/black"
+        android:textSize="20sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/status" />
+
+    <TextView
+        android:id="@+id/AmountTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:fontFamily="@font/ubuntu_light"
+        android:text="Cумма задолжности: "
+        android:textColor="@android:color/black"
+        android:textSize="20sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/DescriptionTv" />
+
+    <TextView
+        android:id="@+id/Amount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:text="Сумма"
+        android:textColor="@android:color/black"
+        android:textSize="20sp"
+        android:fontFamily="@font/ubuntu_light"
+        app:layout_constraintBottom_toBottomOf="@+id/AmountTV"
+        app:layout_constraintStart_toEndOf="@+id/AmountTV"
+        app:layout_constraintTop_toTopOf="@+id/AmountTV" />
+
+    <TextView
+        android:id="@+id/PaymentAmountTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:fontFamily="@font/ubuntu_light"
+        android:text="Оплаченная сумма: "
+        android:textColor="@android:color/black"
+        android:textSize="20sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/AmountTV" />
+
+    <TextView
+        android:id="@+id/PaymentAmount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:text="Сумма"
+        android:textColor="@android:color/black"
+        android:textSize="20sp"
+        android:fontFamily="@font/ubuntu_light"
+        app:layout_constraintBottom_toBottomOf="@+id/PaymentAmountTV"
+        app:layout_constraintStart_toEndOf="@+id/PaymentAmountTV"
+        app:layout_constraintTop_toTopOf="@+id/PaymentAmountTV" />
+
+    <TextView
+        android:id="@+id/DeadlineTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:fontFamily="@font/ubuntu_light"
+        android:text="Дата возвращения: "
+        android:textColor="@android:color/black"
+        android:textSize="20sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/PaymentAmountTV" />
+
+    <TextView
+        android:id="@+id/Deadline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:text="Дата"
+        android:textColor="@android:color/black"
+        android:textSize="20sp"
+        android:fontFamily="@font/ubuntu_light"
+        app:layout_constraintBottom_toBottomOf="@+id/DeadlineTV"
+        app:layout_constraintStart_toEndOf="@+id/DeadlineTV"
+        app:layout_constraintTop_toTopOf="@+id/DeadlineTV" />
+
+    <LinearLayout
+        android:id="@+id/textViewUserInfo"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/DeadlineTV">
+
+
+        <TextView
+            android:id="@+id/UserNameTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/ubuntu_light"
+            android:textColor="@android:color/black"
+            android:textSize="20sp"
+            tools:text="Имя" />
+
+        <TextView
+            android:id="@+id/UserEmailTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:fontFamily="@font/ubuntu_light"
+            android:textColor="@android:color/black"
+            android:textSize="15sp"
+            tools:text="Почта" />
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
