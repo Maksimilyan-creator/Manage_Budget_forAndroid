@@ -49,7 +49,7 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Transaction transaction = transactionIncomeList.get(position);
-        holder.AmountTV.setText(String.valueOf(transaction.getAmount() + " рублей"));
+        holder.AmountTV.setText(String.valueOf(transaction.getAmount() + " ₽"));
         holder.DateTV.setText(transaction.getDate());
         holder.CategoryTV.setText(transaction.getCategory());
 

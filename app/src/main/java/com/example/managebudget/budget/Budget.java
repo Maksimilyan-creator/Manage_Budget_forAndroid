@@ -26,7 +26,9 @@ public class Budget {
     private List<Transaction> incomeTransactions;
     @PropertyName("expenseTransactions")
     private List<Transaction> expenseTransactions;
+    @PropertyName("goals")
     private List<Goal> goals;
+    @PropertyName("debts")
     private List<Debt> debts;
 
     // Конструктор

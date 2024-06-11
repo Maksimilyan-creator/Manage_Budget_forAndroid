@@ -22,6 +22,13 @@ public class Debt
         this.payments = payments;
     }
 
+    public Debt(String userId, String description, double amount, String deadline) {
+        this.userId = userId;
+        this.description = description;
+        this.amount = amount;
+        this.deadline = deadline;
+    }
+
     public String getUserId() {
         return userId;
     }

@@ -52,22 +52,30 @@ public class DebtAdapter extends RecyclerView.Adapter<DebtAdapter.ViewHolder>
 
         double totalPayments = 0;
 
-        for (Payments payment : debt.getPayments())
+        if (debt.getPayments() != null)
         {
-            totalPayments += payment.getAmount();
-        }
+            for (Payments payment : debt.getPayments())
+            {
+                totalPayments += payment.getAmount();
+            }
 
-        if(totalPayments >= debt.getAmount())
-        {
-            holder.status.setText("Оплачено");
+            if(totalPayments >= debt.getAmount())
+            {
+                holder.status.setText("Оплачено");
+            }
+            else
+            {
+                holder.status.setText("Не оплачено");
+            }
         }
         else
         {
             holder.status.setText("Не оплачено");
         }
 
+
         holder.DescriptionTv.setText(debt.getDescription());
-        holder.Amount.setText(String.valueOf(debt.getAmount() + " рублей"));
+        holder.Amount.setText(String.valueOf(debt.getAmount() + " ₽"));
         holder.PaymentAmount.setText(String.valueOf(totalPayments));
         holder.Deadline.setText(debt.getDeadline());
 
