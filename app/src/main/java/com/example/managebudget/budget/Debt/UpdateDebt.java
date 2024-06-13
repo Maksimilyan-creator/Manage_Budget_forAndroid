@@ -8,7 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -21,6 +21,8 @@ import com.example.managebudget.R;
 import com.example.managebudget.budget.Budget;
 import com.example.managebudget.budget.BudgetViewModel;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
@@ -28,13 +30,10 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
-public class CreateDebt extends DialogFragment
+public class UpdateDebt extends DialogFragment
 {
     FirebaseDatabase database;
     FirebaseUser currentUser;
@@ -45,19 +44,32 @@ public class CreateDebt extends DialogFragment
     FloatingActionButton saveBt;
     BudgetViewModel budgetViewModel;
     Budget budget;
+    TextView title;
+    Debt debt;
+    int positionDebt;
+
+    public UpdateDebt(Debt debt, int positionDebt)
+    {
+        this.debt = debt;
+        this.positionDebt = positionDebt;
+    }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_create_debt, container, false);
 
+        title = rootView.findViewById(R.id.textView);
+        title.setText("Изменение долга");
         database = FirebaseDatabase.getInstance("https://manage-budget-41977-default-rtdb.europe-west1.firebasedatabase.app");
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
         closeBt = rootView.findViewById(R.id.closeBt);
         descriptionET = rootView.findViewById(R.id.descriptionET);
+        descriptionET.setText(debt.getDescription());
         AmountET = rootView.findViewById(R.id.AmountET);
+        AmountET.setText(String.valueOf(debt.getAmount()));
         DateET = rootView.findViewById(R.id.DateET);
-        DateET.setText(getCurrentDateTime());
+        DateET.setText(debt.getDeadline());
         saveBt = rootView.findViewById(R.id.saveBt);
         budgetViewModel = new ViewModelProvider(requireActivity()).get(BudgetViewModel.class);
 
@@ -70,7 +82,7 @@ public class CreateDebt extends DialogFragment
 
         saveBt.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) { CreateDebt(); }});
+            public void onClick(View v) { UpdateDebtVoid(); }});
 
         closeBt.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -79,8 +91,7 @@ public class CreateDebt extends DialogFragment
             }
         });
 
-
-        return rootView ;
+        return rootView;
     }
     @NonNull
     @Override
@@ -90,37 +101,29 @@ public class CreateDebt extends DialogFragment
         return dialog;
     }
 
-    @SuppressLint("NotConstructor")
-    private void CreateDebt()
+    public void UpdateDebtVoid()
     {
-        String userId = currentUser.getUid();
         String description = descriptionET.getText().toString();
         String AmountText = AmountET.getText().toString();
         String Date = DateET.getText().toString();
 
-        if(!description.trim().isEmpty() && !AmountText.trim().isEmpty() && !Date.trim().isEmpty())
-        {
+        if(!description.trim().isEmpty() && !AmountText.trim().isEmpty() && !Date.trim().isEmpty()) {
             Double Amount = Double.parseDouble(AmountText);
-            Debt newDebt = new Debt(userId, description, Amount, Date);
-            if (budget.getDebts() == null)
-            {
-                budget.setDebts(new ArrayList<>());
-            }
+            debt.setDescription(description);
+            debt.setAmount(Amount);
+            debt.setDeadline(Date);
 
-            budget.getDebts().add(newDebt);
             DatabaseReference budgetRef = database.getReference("budget").child(budget.getId());
-            budgetRef.child("debts").setValue(budget.getDebts()).addOnCompleteListener(new OnCompleteListener<Void>() {
+            budgetRef.child("debts").child(String.valueOf(positionDebt)).setValue(debt).addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
-                public void onComplete(@NonNull Task<Void> task) {
-                    if (task.isSuccessful())
-                    {
-                        Toast.makeText(getContext(), "Задолжность добавлена", Toast.LENGTH_SHORT).show();
-                        dismiss();
-                    }
-                    else
-                    {
-                        Toast.makeText(getContext(), "Ошибка добавления", Toast.LENGTH_SHORT).show();
-                    }
+                public void onSuccess(Void unused) {
+                    Toast.makeText(getContext(), "Задолжность обновлена", Toast.LENGTH_SHORT).show();
+                    dismiss();
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Toast.makeText(getContext(), "Ошибка обновления задолжности: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });
         }
@@ -129,11 +132,4 @@ public class CreateDebt extends DialogFragment
             Toast.makeText(getContext(), "Поля не могут быть пустыми", Toast.LENGTH_SHORT).show();
         }
     }
-
-
-    String getCurrentDateTime() {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-        return sdf.format(new Date());
-    }
-
 }

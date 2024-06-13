@@ -1,4 +1,4 @@
-package com.example.managebudget.budget;
+package com.example.managebudget.budget.Payments;
 
 public class Payments {
     private String payerId;

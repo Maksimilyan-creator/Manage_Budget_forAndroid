@@ -1,5 +1,7 @@
 package com.example.managebudget.DashBoard;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,7 +23,11 @@ import com.example.managebudget.budget.BudgetViewModel;
 import com.example.managebudget.budget.Debt.CreateDebt;
 import com.example.managebudget.budget.Debt.Debt;
 import com.example.managebudget.budget.Debt.DebtAdapter;
+import com.example.managebudget.budget.Debt.UpdateDebt;
+import com.example.managebudget.budget.Payments.addPayments;
 import com.example.managebudget.budget.Transaction;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -57,21 +63,28 @@ public class DebtsFragment extends Fragment
 
         DebtAdapter.OnDebtClickListener onDebtClickListener = new DebtAdapter.OnDebtClickListener() {
             @Override
-            public void onDebtClick(Debt debt, int position) {
-                Toast.makeText(getContext(), "Ну давай еще потыкай че", Toast.LENGTH_SHORT).show();
-                UpdateDebt(debt);
+            public void onDebtClick(Debt debt, int position)
+            {
+                OpenUpdateDebt(debt, position);
             }
         };
 
         DebtAdapter.OnDebtLongClickListener onDebtLongClickListener = new DebtAdapter.OnDebtLongClickListener() {
             @Override
-            public void onDebtLongClick(Debt debt, int position) {
-                Toast.makeText(getContext(), "Продави экран", Toast.LENGTH_SHORT).show();
+            public void onDebtLongClick(Debt debt, int position)
+            {
                 RemoveDebt(debt);
             }
         };
 
-        debtAdapter = new DebtAdapter(getContext(), new ArrayList<>(), usersRef, onDebtClickListener, onDebtLongClickListener);
+        DebtAdapter.OnButtonCliclListener onButtonCliclListener = new DebtAdapter.OnButtonCliclListener() {
+            @Override
+            public void onButtonClick(Debt debt, int position) {
+                OpenAddPayments(position, debt);
+            }
+        };
+
+        debtAdapter = new DebtAdapter(getContext(), new ArrayList<>(), usersRef, onDebtClickListener, onDebtLongClickListener, onButtonCliclListener);
         RecyclerViewDebt.setLayoutManager(new LinearLayoutManager(getContext()));
         RecyclerViewDebt.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
         RecyclerViewDebt.setAdapter(debtAdapter);
@@ -110,11 +123,42 @@ public class DebtsFragment extends Fragment
 
     private void RemoveDebt(Debt debt)
     {
-        return;
+        new AlertDialog.Builder(getContext())
+                .setTitle("Удалить задолжность")
+                .setMessage("Вы уверены, что хотите удалить задолжность с описанием " + debt.getDescription() + ", на сумму " + debt.getAmount() + " рублей" + "?")
+                .setPositiveButton("Да", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        budget.getDebts().remove(debt);
+
+                        DatabaseReference budgetRef = database.getReference("budget").child(budget.getId());
+                        budgetRef.child("debts").setValue(budget.getDebts()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if (task.isSuccessful())
+                                {
+                                    Toast.makeText(getContext(), "Задолжность удалена", Toast.LENGTH_SHORT).show();
+                                }
+                                else
+                                {
+                                    Toast.makeText(getContext(), "Ошибка удаления", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+                    }
+                })
+                .setNegativeButton("Нет", null).show();
     }
 
-    private void UpdateDebt(Debt debt)
+    private void OpenUpdateDebt(Debt debt, int positionDebt)
     {
-        return;
+        UpdateDebt updateDebt = new UpdateDebt(debt, positionDebt);
+        updateDebt.show(getParentFragmentManager(), "UpdateDebt");
+    }
+
+    private void OpenAddPayments(int position, Debt debt)
+    {
+        addPayments addPaymentss = new addPayments(position, debt);
+        addPaymentss.show(getParentFragmentManager(), "addPayments");
     }
 }

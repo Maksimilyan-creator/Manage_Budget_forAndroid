@@ -8,22 +8,19 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -33,26 +30,15 @@ import com.example.managebudget.bottomnav.Statisticsfragment;
 import com.example.managebudget.bottomnav.ProfileFragment;
 import com.example.managebudget.budget.Budget;
 import com.example.managebudget.budget.BudgetViewModel;
-import com.example.managebudget.budget.Category;
-import com.example.managebudget.budget.Transaction;
-import com.example.managebudget.user.User;
 import com.example.managebudget.user.UserViewModel;
-import com.example.managebudget.users.Users;
 import com.example.managebudget.users.UsersViewModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -69,18 +55,26 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseDatabase database;
     private FirebaseStorage storage;
     private FirebaseUser currentUser;
+    private TextView balanceTV;
+    private ImageView balanceImage ;
     private String selecredBudgetId = "";
+    int textColorRed;
+    int textColorWhite;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        textColorRed = getResources().getColor(R.color.red, null);
+        textColorWhite = getResources().getColor(R.color.white, null);
 
         toolbar = findViewById(R.id.toolbar);
         fragment_container = findViewById(R.id.fragment_container);
         bottom_nav = findViewById(R.id.bottom_nav);
         ProggresBar = findViewById(R.id.ProggresBar);
         budgetSpinner = findViewById(R.id.budget_spinner);
+        balanceTV = findViewById(R.id.balanceTV);
+        balanceImage = findViewById(R.id.blanceImage);
 
         // Натсройка Toolbar
         setSupportActionBar(toolbar);
@@ -115,6 +109,7 @@ public class MainActivity extends AppCompatActivity {
                         else
                         {
                             setupBudgetSpinner(budgets);
+                            GetBalance();
                         }
                         hideLoadingAnimation();
                     });
@@ -128,6 +123,44 @@ public class MainActivity extends AppCompatActivity {
         }
 
         setupBottomNavigationView();
+    }
+
+    private void GetBalance()
+    {
+
+        budgetViewModel.getSelectedBudget().observe( MainActivity.this, budget ->
+        {
+            if (budget != null)
+            {
+                Double balance = budget.balance();
+                balance = Math.floor(balance * 100) / 100;
+
+                if (balance > 0)
+                {
+                    balanceTV.setText(String.valueOf(balance + " ₽"));
+                    balanceTV.setTextColor(textColorWhite);
+                    balanceImage.setColorFilter(textColorWhite);
+                }
+                if (balance == 0)
+                {
+                    balanceTV.setText(String.valueOf(balance + " ₽"));
+                    balanceTV.setTextColor(textColorWhite);
+                    balanceImage.setColorFilter(textColorWhite);
+                }
+                if (balance < 0)
+                {
+                    balanceTV.setText(String.valueOf(balance + " ₽"));
+                    balanceTV.setTextColor(textColorRed);
+                    balanceImage.setColorFilter(textColorRed);
+                }
+            }
+            else
+            {
+                balanceTV.setText("0 ₽");
+                balanceTV.setTextColor(textColorWhite);
+                balanceImage.setColorFilter(textColorWhite);
+            }
+        });
     }
 
     private void setupBottomNavigationView() {

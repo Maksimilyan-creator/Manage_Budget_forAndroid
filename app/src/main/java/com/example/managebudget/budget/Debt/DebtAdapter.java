@@ -6,13 +6,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.managebudget.R;
-import com.example.managebudget.budget.Payments;
+import com.example.managebudget.budget.Payments.Payments;
+import com.example.managebudget.budget.Payments.addPayments;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -29,13 +29,16 @@ public class DebtAdapter extends RecyclerView.Adapter<DebtAdapter.ViewHolder>
     private OnDebtClickListener onDebtClickListener;
     private OnDebtLongClickListener onDebtLongClickListener;
 
-    public DebtAdapter (Context context, List<Debt> debtList, DatabaseReference usersRef, OnDebtClickListener onDebtClickListener, OnDebtLongClickListener onDebtLongClickListener )
+    private OnButtonCliclListener onButtonCliclListener;
+
+    public DebtAdapter (Context context, List<Debt> debtList, DatabaseReference usersRef, OnDebtClickListener onDebtClickListener, OnDebtLongClickListener onDebtLongClickListener, OnButtonCliclListener onButtonCliclListener )
     {
         this.inflater = LayoutInflater.from(context);
         this.debtList = debtList;
         this.usersRef = usersRef;
         this.onDebtClickListener = onDebtClickListener;
         this.onDebtLongClickListener = onDebtLongClickListener;
+        this.onButtonCliclListener = onButtonCliclListener;
     }
 
     @NonNull
@@ -76,7 +79,7 @@ public class DebtAdapter extends RecyclerView.Adapter<DebtAdapter.ViewHolder>
 
         holder.DescriptionTv.setText(debt.getDescription());
         holder.Amount.setText(String.valueOf(debt.getAmount() + " ₽"));
-        holder.PaymentAmount.setText(String.valueOf(totalPayments));
+        holder.PaymentAmount.setText(String.valueOf(totalPayments + " ₽"));
         holder.Deadline.setText(debt.getDeadline());
 
         usersRef.child(debt.getUserId()).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -96,7 +99,7 @@ public class DebtAdapter extends RecyclerView.Adapter<DebtAdapter.ViewHolder>
         holder.addPaymentBt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(inflater.getContext(), "Ну молодец хули", Toast.LENGTH_SHORT).show();
+                onButtonCliclListener.onButtonClick(debt, position);
             }
         });
 
@@ -162,5 +165,10 @@ public class DebtAdapter extends RecyclerView.Adapter<DebtAdapter.ViewHolder>
     public interface OnDebtLongClickListener
     {
         void onDebtLongClick(Debt debt, int position);
+    }
+
+    public interface OnButtonCliclListener
+    {
+        void onButtonClick (Debt debt, int position);
     }
 }

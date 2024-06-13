@@ -1,6 +1,6 @@
 package com.example.managebudget.budget.Goal;
 
-import com.example.managebudget.budget.Payments;
+import com.example.managebudget.budget.Payments.Payments;
 
 import java.util.List;
 

@@ -23,9 +23,32 @@
             android:id="@+id/budget_spinner"
             android:layout_width="200dp"
             android:layout_height="30dp"
-            android:foreground="@drawable/spinner_background"
+            android:foreground="@drawable/spinner_background" />
 
-            />
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:layout_marginEnd="16dp">
+
+            <ImageView
+                android:id="@+id/blanceImage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/balance"
+                android:layout_marginEnd="5dp" />
+
+            <TextView
+                android:id="@+id/balanceTV"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="1000000 Р"
+                android:textSize="20sp"
+                android:fontFamily="@font/ubuntu_light"
+                android:textColor="@android:color/white"
+                />
+        </LinearLayout>
+
     </androidx.appcompat.widget.Toolbar>
 
     <FrameLayout

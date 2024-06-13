@@ -2,9 +2,11 @@ package com.example.managebudget.budget;
 
 import com.example.managebudget.budget.Debt.Debt;
 import com.example.managebudget.budget.Goal.Goal;
+import com.example.managebudget.budget.Payments.Payments;
 import com.google.firebase.database.PropertyName;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Budget {
     @PropertyName("id")
@@ -130,6 +132,56 @@ public class Budget {
         this.debts = debts;
 
 
+    }
+
+    public double balance ()
+    {
+        Double totalIncome = 0.0;
+        Double totalExpenses = 0.0;
+        Double totalDebtPayments = 0.0;
+        Double totalGoalPayments = 0.0;
+
+        if (incomeTransactions != null)
+        {
+             totalIncome = incomeTransactions.stream().mapToDouble(Transaction::getAmount).sum();
+        }
+
+        if (expenseTransactions != null)
+        {
+            totalExpenses = expenseTransactions.stream().mapToDouble(Transaction::getAmount).sum();
+        }
+
+        if (debts != null) {
+            List<Payments> allPayments = debts.stream()
+                    .filter(debt -> debt.getPayments() != null && !debt.getPayments().isEmpty())
+                    .flatMap(debt -> debt.getPayments().stream())
+                    .collect(Collectors.toList());
+
+            if (!allPayments.isEmpty()) {
+                totalDebtPayments = allPayments.stream()
+                        .mapToDouble(Payments::getAmount)
+                        .sum();
+
+            }
+        }
+
+        if (goals != null) {
+            List<Payments> allPaymentss = goals.stream()
+                    .filter(goal -> goal.getPayments() != null && !goal.getPayments().isEmpty())
+                    .flatMap(goal -> goal.getPayments().stream())
+                    .collect(Collectors.toList());
+
+            if (!allPaymentss.isEmpty()) {
+                totalGoalPayments = allPaymentss.stream()
+                        .mapToDouble(Payments::getAmount)
+                        .sum();
+            }
+        }
+
+
+        Double balance = totalIncome - totalExpenses - totalGoalPayments - totalDebtPayments;
+
+        return  balance;
     }
 }
 
