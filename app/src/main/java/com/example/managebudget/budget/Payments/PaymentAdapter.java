@@ -24,11 +24,16 @@ public class PaymentAdapter extends RecyclerView.Adapter<PaymentAdapter.ViewHold
 
     private final DatabaseReference userRef;
 
-    public PaymentAdapter(Context context, List<Payments> paymentsList, DatabaseReference userRef )
+    private final OnItemPaymentClickListener onItemPaymentClickListener;
+    private final OnItemPaymentLongClickListener onItemPaymentLongClickListener;
+
+    public PaymentAdapter(Context context, List<Payments> paymentsList, DatabaseReference userRef, OnItemPaymentClickListener onItemPaymentClickListener, OnItemPaymentLongClickListener onItemPaymentLongClickListener )
     {
         this.inflater = LayoutInflater.from(context);
         this.paymentsList = paymentsList;
         this.userRef = userRef;
+        this.onItemPaymentClickListener = onItemPaymentClickListener;
+        this.onItemPaymentLongClickListener = onItemPaymentLongClickListener;
     }
 
     @NonNull
@@ -43,7 +48,7 @@ public class PaymentAdapter extends RecyclerView.Adapter<PaymentAdapter.ViewHold
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Payments payments = paymentsList.get(position);
 
-        holder.AmountTV.setText(String.valueOf(payments.getAmount()));
+        holder.AmountTV.setText(String.valueOf(payments.getAmount() + " ₽"));
         holder.DateTV.setText(payments.getDate());
 
         userRef.child(payments.getPayerId()).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -58,6 +63,21 @@ public class PaymentAdapter extends RecyclerView.Adapter<PaymentAdapter.ViewHold
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
 
+            }
+        });
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onItemPaymentClickListener.onPaymentClick(payments, position);
+            }
+        });
+
+        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                onItemPaymentLongClickListener.onPaymentLongClick(payments, position);
+                return true;
             }
         });
 
@@ -92,5 +112,15 @@ public class PaymentAdapter extends RecyclerView.Adapter<PaymentAdapter.ViewHold
             UserNameTV = view.findViewById(R.id.UserNameTV);
             UserEmailTV = view.findViewById(R.id.UserEmailTV);
         }
+    }
+
+    public interface OnItemPaymentClickListener
+    {
+        void onPaymentClick(Payments payments, int position);
+    }
+
+    public interface OnItemPaymentLongClickListener
+    {
+        void onPaymentLongClick(Payments payments, int position);
     }
 }

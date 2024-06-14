@@ -25,6 +25,7 @@ import com.example.managebudget.R;
 import com.example.managebudget.budget.Budget;
 import com.example.managebudget.budget.BudgetViewModel;
 import com.example.managebudget.budget.Debt.Debt;
+import com.example.managebudget.budget.Goal.Goal;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -40,7 +41,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class addPayments extends DialogFragment
+public class addPaymentsGoal extends DialogFragment
 {
     ImageView closeBt;
     EditText AmountET;
@@ -58,16 +59,16 @@ public class addPayments extends DialogFragment
     FirebaseUser currentUser;
     Budget budget;
     PaymentAdapter paymentAdapter;
-    Debt selectedDebt;
+    Goal selectedGoal;
     List<Payments> paymentsList;
     Payments selectedPayment = new Payments();
     int selectedPosition;
+    TextView textView7;
 
-    public addPayments(int position, Debt selectedDebt)
+    public addPaymentsGoal(int position, Goal selectedGoal)
     {
         this.position = position;
-        this.selectedDebt = selectedDebt;
-
+        this.selectedGoal = selectedGoal;
     }
 
     @Nullable
@@ -81,6 +82,8 @@ public class addPayments extends DialogFragment
         DateET.setText(getCurrentDateTime());
         saveBt = rootView.findViewById(R.id.saveBt);
         updateBt = rootView.findViewById(R.id.updateBt);
+        textView7 = rootView.findViewById(R.id.textView7);
+        textView7.setText("Собрано:");
         RecyclerViewPayments = rootView.findViewById(R.id.RecyclerViewPayments);
         Amount = rootView.findViewById(R.id.Amount);
         Amount.setText("0 ₽");
@@ -90,7 +93,6 @@ public class addPayments extends DialogFragment
         database = FirebaseDatabase.getInstance("https://manage-budget-41977-default-rtdb.europe-west1.firebasedatabase.app");
         usersRef = database.getReference("users");
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
-
 
         RecyclerViewPayments.setLayoutManager(new LinearLayoutManager(getContext()));
         RecyclerViewPayments.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
@@ -118,18 +120,17 @@ public class addPayments extends DialogFragment
         paymentAdapter = new PaymentAdapter(getContext(), new ArrayList<>(), usersRef, onItemPaymentClickListener, onItemPaymentLongClickListener);
         RecyclerViewPayments.setAdapter(paymentAdapter);
 
-
         budgetViewModel.getSelectedBudget().observe(getViewLifecycleOwner(), new Observer<Budget>() {
             @Override
             public void onChanged(Budget budget_)
             {
-                if(budget_ != null && selectedDebt != null && position >=0 )
+                if(budget_ != null && selectedGoal != null && position >=0 )
                 {
                     budget = budget_;
-                    if (selectedDebt != null)
+                    if (selectedGoal != null)
                     {
-                        Amount.setText(String.valueOf(selectedDebt.getAmount() + " ₽"));
-                        paymentsList = selectedDebt.getPayments();
+                        Amount.setText(String.valueOf(selectedGoal.getAmount() + " ₽"));
+                        paymentsList = selectedGoal.getPayments();
 
                         if (paymentsList != null)
                         {
@@ -149,15 +150,24 @@ public class addPayments extends DialogFragment
 
         closeBt.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) { dismiss(); }});
+            public void onClick(View v) {
+                dismiss();
+            }
+        });
 
         saveBt.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) { AddPayment(); }});
+            public void onClick(View v) {
+                AddPayments();
+            }
+        });
 
         updateBt.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) { UpdatePayments(); }});
+            public void onClick(View v) {
+                UpdatePayments();
+            }
+        });
 
         return rootView;
     }
@@ -174,7 +184,7 @@ public class addPayments extends DialogFragment
         return sdf.format(new Date());
     }
 
-    public void AddPayment()
+    public void AddPayments()
     {
         String PaymentAmount = AmountET.getText().toString();
         String PaymentDate = DateET.getText().toString();
@@ -189,7 +199,7 @@ public class addPayments extends DialogFragment
                     : 0;
 
             double newTotalPayments = currentTotalPayments + paymentAmountDouble;
-            double remainingAmount = selectedDebt.getAmount() - newTotalPayments;
+            double remainingAmount = selectedGoal.getAmount() - newTotalPayments;
 
             if (remainingAmount < 0) {
                 Toast.makeText(getContext(), "Слишком много", Toast.LENGTH_SHORT).show();
@@ -208,26 +218,26 @@ public class addPayments extends DialogFragment
                 paymentsList.add(payment);
             }
 
-                DatabaseReference budgetRef = database.getReference("budget").child(budget.getId());
-                budgetRef.child("debts").child(String.valueOf(position)).child("payments").setValue(paymentsList).addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void unused) {
-                        Toast.makeText(getContext(), "Оплата добавлена", Toast.LENGTH_SHORT).show();
-                        dismiss();
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(getContext(), "Ошибка добавление оплаты: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
+            DatabaseReference budgetRef = database.getReference("budget").child(budget.getId());
+            budgetRef.child("goals").child(String.valueOf(position)).child("payments").setValue(paymentsList).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void unused) {
+                    Toast.makeText(getContext(), "Оплата добавлена", Toast.LENGTH_SHORT).show();
+                    dismiss();
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Toast.makeText(getContext(), "Ошибка добавление оплаты: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
         else
         {
             Toast.makeText(getContext(), "Поля не могут быть пустыми", Toast.LENGTH_SHORT).show();
         }
-
     }
+
     public void UpdatePayments()
     {
         String PaymentAmount = AmountET.getText().toString();
@@ -244,7 +254,7 @@ public class addPayments extends DialogFragment
                         .sum();
 
                 double newTotalPayments = currentTotalPayments + paymentAmountDouble;
-                double remainingAmount = selectedDebt.getAmount() - newTotalPayments;
+                double remainingAmount = selectedGoal.getAmount() - newTotalPayments;
 
                 if (remainingAmount < 0) {
                     Toast.makeText(getContext(), "Слишком много", Toast.LENGTH_SHORT).show();
@@ -254,6 +264,7 @@ public class addPayments extends DialogFragment
                 selectedPayment.setAmount(paymentAmountDouble);
                 selectedPayment.setDate(PaymentDate);
                 selectedPayment.setPayerId(PayerId);
+
             }
             else
             {
@@ -261,7 +272,7 @@ public class addPayments extends DialogFragment
             }
 
             DatabaseReference budgetRef = database.getReference("budget").child(budget.getId());
-            budgetRef.child("debts").child(String.valueOf(position)).child("payments").child(String.valueOf(selectedPosition)).setValue(selectedPayment).addOnSuccessListener(new OnSuccessListener<Void>() {
+            budgetRef.child("goals").child(String.valueOf(position)).child("payments").child(String.valueOf(selectedPosition)).setValue(selectedPayment).addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void unused) {
                     Toast.makeText(getContext(), "Оплата изменена", Toast.LENGTH_SHORT).show();
@@ -279,7 +290,6 @@ public class addPayments extends DialogFragment
         {
             Toast.makeText(getContext(), "Поля не могут быть пустыми", Toast.LENGTH_SHORT).show();
         }
-
     }
 
     public void RemovePayments(Payments payments, int position1)
@@ -290,10 +300,10 @@ public class addPayments extends DialogFragment
                 .setPositiveButton("Да", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                       paymentsList.remove(payments);
+                        paymentsList.remove(payments);
 
                         DatabaseReference budgetRef = database.getReference("budget").child(budget.getId());
-                        budgetRef.child("debts").child(String.valueOf(position)).child("payments").setValue(paymentsList).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        budgetRef.child("goals").child(String.valueOf(position)).child("payments").setValue(paymentsList).addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
                                 if (task.isSuccessful())

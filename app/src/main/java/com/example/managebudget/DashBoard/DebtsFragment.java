@@ -125,7 +125,7 @@ public class DebtsFragment extends Fragment
     {
         new AlertDialog.Builder(getContext())
                 .setTitle("Удалить задолжность")
-                .setMessage("Вы уверены, что хотите удалить задолжность с описанием " + debt.getDescription() + ", на сумму " + debt.getAmount() + " рублей" + "?")
+                .setMessage("Вы уверены, что хотите удалить задолжность с описанием " + debt.getDescription() + ", на сумму " + debt.getAmount() + " ₽" + "?")
                 .setPositiveButton("Да", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

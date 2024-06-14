@@ -7,17 +7,17 @@
     tools:context=".DashBoard.GoalsFragment">
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/RecyclerViewDebt"
+        android:id="@+id/RecyclerViewGoal"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="45dp"
-        app:layout_constraintBottom_toTopOf="@+id/DebtSaveBt"
+        app:layout_constraintBottom_toTopOf="@+id/GoalSaveBt"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/DebtSaveBt"
+        android:id="@+id/GoalSaveBt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"

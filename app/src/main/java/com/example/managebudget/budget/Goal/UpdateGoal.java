@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -19,20 +20,15 @@ import com.example.managebudget.R;
 import com.example.managebudget.budget.Budget;
 import com.example.managebudget.budget.BudgetViewModel;
 import com.example.managebudget.budget.Debt.Debt;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Locale;
-
-public class CreateGoal extends DialogFragment
+public class UpdateGoal extends DialogFragment
 {
     FirebaseDatabase database;
     FirebaseUser currentUser;
@@ -43,19 +39,32 @@ public class CreateGoal extends DialogFragment
     FloatingActionButton saveBt;
     BudgetViewModel budgetViewModel;
     Budget budget;
+    TextView title;
+    Goal goal;
+    int positionGoal;
+
+    public UpdateGoal(Goal goal, int positionGoal)
+    {
+        this.goal = goal;
+        this.positionGoal = positionGoal;
+    }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_create_goal, container, false);
 
+        title = rootView.findViewById(R.id.textView);
+        title.setText("Изменение цели");
         database = FirebaseDatabase.getInstance("https://manage-budget-41977-default-rtdb.europe-west1.firebasedatabase.app");
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
         closeBt = rootView.findViewById(R.id.closeBt);
         descriptionET = rootView.findViewById(R.id.descriptionET);
+        descriptionET.setText(goal.getDescription());
         AmountET = rootView.findViewById(R.id.AmountET);
+        AmountET.setText(String.valueOf(goal.getAmount()));
         DateET = rootView.findViewById(R.id.DateET);
-        DateET.setText(getCurrentDateTime());
+        DateET.setText(goal.getDeadline());
         saveBt = rootView.findViewById(R.id.saveBt);
         budgetViewModel = new ViewModelProvider(requireActivity()).get(BudgetViewModel.class);
 
@@ -69,7 +78,7 @@ public class CreateGoal extends DialogFragment
         saveBt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AddGoal();
+                UpdateGoalVoid();
             }
         });
 
@@ -90,36 +99,29 @@ public class CreateGoal extends DialogFragment
         return dialog;
     }
 
-    public void AddGoal()
+    public void UpdateGoalVoid()
     {
-        String userId = currentUser.getUid();
         String description = descriptionET.getText().toString();
         String AmountText = AmountET.getText().toString();
         String Date = DateET.getText().toString();
 
-        if(!description.trim().isEmpty() && !AmountText.trim().isEmpty() && !Date.trim().isEmpty())
-        {
+        if(!description.trim().isEmpty() && !AmountText.trim().isEmpty() && !Date.trim().isEmpty()) {
             Double Amount = Double.parseDouble(AmountText);
-            Goal newGoal = new Goal(userId, description, Amount, Date);
-            if (budget.getGoals() == null)
-            {
-                budget.setGoals(new ArrayList<>());
-            }
+            goal.setDescription(description);
+            goal.setAmount(Amount);
+            goal.setDeadline(Date);
 
-            budget.getGoals().add(newGoal);
             DatabaseReference budgetRef = database.getReference("budget").child(budget.getId());
-            budgetRef.child("goals").setValue(budget.getGoals()).addOnCompleteListener(new OnCompleteListener<Void>() {
+            budgetRef.child("goals").child(String.valueOf(positionGoal)).setValue(goal).addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
-                public void onComplete(@NonNull Task<Void> task) {
-                    if (task.isSuccessful())
-                    {
-                        Toast.makeText(getContext(), "Цель добавлена", Toast.LENGTH_SHORT).show();
-                        dismiss();
-                    }
-                    else
-                    {
-                        Toast.makeText(getContext(), "Ошибка добавления", Toast.LENGTH_SHORT).show();
-                    }
+                public void onSuccess(Void unused) {
+                    Toast.makeText(getContext(), "Цель обновлена", Toast.LENGTH_SHORT).show();
+                    dismiss();
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Toast.makeText(getContext(), "Ошибка обновления цели: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });
         }
@@ -128,10 +130,5 @@ public class CreateGoal extends DialogFragment
             Toast.makeText(getContext(), "Поля не могут быть пустыми", Toast.LENGTH_SHORT).show();
         }
     }
-
-    String getCurrentDateTime() {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-        return sdf.format(new Date());
-    }
-
 }
+
